@@ -1,3 +1,7 @@
+/*
+
+
+
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
 
@@ -44,4 +48,12 @@ poligonos.push(poligono);`);
   a.download = "nuevo_territorio.js";
   a.click();
   URL.revokeObjectURL(url);
-}
+} 
+  
+
+
+
+
+
+
+*/
