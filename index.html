@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Mapa Interactivo</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- === Estilos de Leaflet y Leaflet.Draw === -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+
+  <style>
+    /* === MAPA === */
+    #map {
+      height: 950px;
+    }
+
+    /* === MENÚ SUPERIOR IZQUIERDO === */
+    .menu {
+      position: fixed;
+      top: 1vh;
+      left: 1vw;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 0.5em;
+      border-radius: 5px;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    button {
+      margin: 3px;
+      padding: 5px 5px;
+      font-size: 10px;
+    }
+
+    /* === BOTONES DE DIBUJO (Leaflet.Draw) === */
+    .leaflet-draw.leaflet-control {
+      margin-top: 5vh !important;
+    }
+
+    /* === ESTILO DE LAS ETIQUETAS DE POLÍGONOS === */
+    .etiqueta-poligono {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 100px;
+      padding: 1px 5px;
+      font-weight: 500;
+      font-size: 15px;
+      color: #060606;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* === MENÚ CONTEXTUAL PERSONALIZADO === */
+    .menu-contextual {
+      background: white;
+      padding: 8px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      font-size: 14px;
+    }
+
+    .menu-contextual button {
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- === MENÚ DE BOTONES === -->
+  <div class="menu">
+    <button onclick="verTerritorios()">Área Grande</button>
+    <button onclick="irATerritorio(1)">Territorio 1</button>
+    <button onclick="irATerritorio(2)">Territorio 2</button>
+    <button onclick="exportarPoligonos()">Exportar polígonos</button>
+  </div>
+
+  <!-- === MAPA === -->
+  <div id="map"></div>
+
+  <!-- === MENÚ CONTEXTUAL === -->
+  <div id="menuContextual" class="menu-contextual" style="display:none; position:absolute; z-index:2000;">
+    <button id="btnUbicacion">Ubicación</button>
+  </div>
+
+  <!-- === LIBRERÍAS EXTERNAS === -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+
+  <!-- === CONFIGURACIÓN DEL MAPA BASE === -->
+  <script>
+    var map = L.map("map", { maxZoom: 22, zoomControl: false }).setView(
+      [28.594, -106.044],
+      14
+    );
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap",
+      maxZoom: 22,
+    }).addTo(map);
+
+    var poligonos = [];
+
+    function verTerritorios() {
+      if (areaGrande) map.fitBounds(areaGrande.getBounds());
+    }
+
+    function irATerritorio(n) {
+      if (poligonos[n - 1]) map.fitBounds(poligonos[n - 1].getBounds());
+    }
+
+    function exportarPoligonos() {
+      alert("Función de exportación aún no implementada.");
+    }
+  </script>
+
+  <!-- === ARCHIVOS EXTERNOS === -->
+  <script src="area_grande.js"></script>
+  <script src="territorio1.js"></script>
+  <script src="territorio2.js"></script>
+  <script src="dibujo.js"></script>
+</body>
+
+</html>
