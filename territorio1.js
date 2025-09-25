@@ -1,6 +1,11 @@
 // === Territorio 1 ===
+// Crear un grupo de polígonos para el Territorio 1
 var territorio1 = L.featureGroup().addTo(map);
 
+// =============================
+// Datos de los polígonos
+// Define las coordenadas, color, opacidad, etiquetas y enlaces de cada polígono
+// =============================
 var poligonosData = [
   {
     id: "Territorio1_Completo",
@@ -69,9 +74,17 @@ var poligonosData = [
   },
 ];
 
+// =============================
+// Estado guardado y notas
+// Recupera el estado de selección guardado en localStorage y define el objeto de notas
+// =============================
 var estadoGuardado = JSON.parse(localStorage.getItem("territorio1_estado") || "{}");
 var notasPoligonos = {};
 
+// =============================
+// Crear polígonos en el mapa
+// Agrega los polígonos, estilos, etiquetas y eventos de click/long press
+// =============================
 poligonosData.forEach(function (d) {
   var pol = L.polygon(d.coords, { color: d.color, fillOpacity: d.fillOpacity, weight: d.weight }).addTo(territorio1);
   pol._id = d.id;
@@ -90,7 +103,7 @@ poligonosData.forEach(function (d) {
     localStorage.setItem("territorio1_estado", JSON.stringify(estadoGuardado));
   });
 
-  // Menú contextual
+  // Eventos de menú contextual y long press
   pol.on("contextmenu", function (e) { e.originalEvent.preventDefault(); mostrarMenu(e, pol); });
   pol.on("mousedown touchstart", function (e) { longPressTimer = setTimeout(() => mostrarMenu(e, pol), 600); });
   pol.on("mouseup touchend", function () { clearTimeout(longPressTimer); });
@@ -99,6 +112,10 @@ poligonosData.forEach(function (d) {
 
 poligonos.push(territorio1);
 
+// =============================
+// Agregar etiquetas a los polígonos
+// Calcula el centroide y coloca un marker con texto
+// =============================
 function agregarEtiqueta(poligono, texto) {
   var latlngs = poligono.getLatLngs()[0];
   var coords = latlngs.map(ll => [ll.lng, ll.lat]);
@@ -112,6 +129,7 @@ function agregarEtiqueta(poligono, texto) {
 
 // =============================
 // Menú contextual
+// Muestra el menú al hacer click derecho o long press sobre un polígono
 // =============================
 function mostrarMenu(e, pol) {
   ocultarMenu();
@@ -129,10 +147,14 @@ function mostrarMenu(e, pol) {
   `;
 }
 
+// =============================
+// Ocultar menú contextual
+// =============================
 function ocultarMenu() { document.getElementById("menuContextual").style.display = "none"; }
 
 // =============================
 // Notas con popup
+// Abre un popup para añadir una nota al polígono
 // =============================
 function anadirNotaPopup(id) {
   ocultarMenu();
@@ -156,11 +178,19 @@ function anadirNotaPopup(id) {
   };
 }
 
+// =============================
+// Ver notas
+// Muestra un popup con todas las notas del polígono
+// =============================
 function verNotas(id) {
   ocultarMenu();
   mostrarNotasPopup(id);
 }
 
+// =============================
+// Mostrar notas en popup
+// Construye la lista de notas y botones de eliminar
+// =============================
 function mostrarNotasPopup(id) {
   var notas = notasPoligonos[id] || [];
   if (notas.length === 0) { alert("📭 No hay notas."); return; }
@@ -171,6 +201,10 @@ function mostrarNotasPopup(id) {
   L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
 }
 
+// =============================
+// Confirmar eliminación de nota
+// Muestra un popup de confirmación antes de eliminar
+// =============================
 function confirmarEliminarNotaPopup(id, index) {
   map.closePopup(); // cerrar notas
   L.popup()
@@ -183,9 +217,11 @@ function confirmarEliminarNotaPopup(id, index) {
     .openOn(map);
 }
 
+// =============================
+// Eliminar nota
+// Borra la nota y cierra el popup
+// =============================
 function eliminarNota(id, index) {
   notasPoligonos[id].splice(index, 1);
   map.closePopup();
 }
-
-
