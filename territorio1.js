@@ -219,3 +219,4 @@ function eliminarNota(id, index) {
 
   map.closePopup();
 }
+
