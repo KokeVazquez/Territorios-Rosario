@@ -1,14 +1,6 @@
 // === Territorio 1 ===
-// Este archivo define un territorio (grupo de polígonos) + sus etiquetas
-
-// ------------------------------
-// 1. Crear un grupo para el territorio
-// ------------------------------
 var territorio1 = L.featureGroup().addTo(map);
 
-// ------------------------------
-// 2. Definir sub-polígonos con ID único, color, fillOpacity, weight y link
-// ------------------------------
 var poligonosData = [
   {
     id: "Territorio1_Completo",
@@ -77,133 +69,123 @@ var poligonosData = [
   },
 ];
 
-// ------------------------------
-// 3. Cargar estado guardado de localStorage
-// ------------------------------
-var estadoGuardado = JSON.parse(
-  localStorage.getItem("territorio1_estado") || "{}"
-);
+var estadoGuardado = JSON.parse(localStorage.getItem("territorio1_estado") || "{}");
+var notasPoligonos = {};
 
-// ------------------------------
-// 4. Crear polígonos y aplicar persistencia
-// ------------------------------
 poligonosData.forEach(function (d) {
-  var pol = L.polygon(d.coords, {
-    color: d.color,
-    fillOpacity: d.fillOpacity,
-    weight: d.weight,
-  }).addTo(territorio1);
+  var pol = L.polygon(d.coords, { color: d.color, fillOpacity: d.fillOpacity, weight: d.weight }).addTo(territorio1);
   pol._id = d.id;
-  pol._link = d.link; // Guardamos el link en el polígono
+  pol._link = d.link;
 
-  // Guardar estilo original
-  pol._originalStyle = {
-    color: pol.options.color,
-    fillColor: pol.options.fillColor || pol.options.color,
-    fillOpacity: pol.options.fillOpacity,
-    weight: pol.options.weight,
-  };
+  pol._originalStyle = { color: pol.options.color, fillColor: pol.options.fillColor || pol.options.color, fillOpacity: pol.options.fillOpacity, weight: pol.options.weight };
 
-  // Restaurar estado guardado
   pol._selected = estadoGuardado[pol._id] || false;
-  if (pol._selected)
-    pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 1.0 });
-
-  // Agregar etiqueta
+  if (pol._selected) pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 1.0 });
   if (d.label) agregarEtiqueta(pol, d.label);
 
-  // Toggle al hacer clic normal (izquierdo)
   pol.on("click", function () {
     pol._selected = !pol._selected;
-    if (pol._selected)
-      pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
-    else pol.setStyle(pol._originalStyle);
-
-    // Guardar en localStorage
+    pol.setStyle(pol._selected ? { color: "gray", fillColor: "gray", fillOpacity: 0.9 } : pol._originalStyle);
     estadoGuardado[pol._id] = pol._selected;
     localStorage.setItem("territorio1_estado", JSON.stringify(estadoGuardado));
   });
 
-  // ------------------------------
-  // Menú contextual con link propio
-  // ------------------------------
-  var menu = document.getElementById("menuContextual");
-  var btnUbicacion = document.getElementById("btnUbicacion");
+  // Menú contextual
+  pol.on("contextmenu", function (e) { e.originalEvent.preventDefault(); mostrarMenu(e, pol); });
+  pol.on("mousedown touchstart", function (e) { longPressTimer = setTimeout(() => mostrarMenu(e, pol), 600); });
+  pol.on("mouseup touchend", function () { clearTimeout(longPressTimer); });
   var longPressTimer;
-
-  // Mostrar menú en clic derecho (PC)
-  pol.on("contextmenu", function (e) {
-    e.originalEvent.preventDefault();
-    mostrarMenu(e, pol);
-  });
-
-  // Detectar long press en móvil
-  pol.on("mousedown touchstart", function (e) {
-    longPressTimer = setTimeout(function () {
-      mostrarMenu(e, pol);
-    }, 600); // medio segundo
-  });
-
-  pol.on("mouseup touchend", function () {
-    clearTimeout(longPressTimer);
-  });
-
-  function mostrarMenu(e, pol) {
-    var x = e.originalEvent.clientX || (e.originalEvent.touches && e.originalEvent.touches[0].clientX);
-    var y = e.originalEvent.clientY || (e.originalEvent.touches && e.originalEvent.touches[0].clientY);
-
-    menu.style.left = x + "px";
-    menu.style.top = y + "px";
-    menu.style.display = "block";
-
-    // Acción del botón: usar link del polígono
-    btnUbicacion.onclick = function () {
-      if (pol._link) {
-        window.open(pol._link, "_blank");
-      } else {
-        alert("Este polígono no tiene link asignado.");
-      }
-      menu.style.display = "none";
-    };
-  }
-
-  // Ocultar menú si clic fuera
-  map.on("click", function () {
-    menu.style.display = "none";
-  });
 });
 
-// ------------------------------
-// 5. Guardar el grupo en el array global
-// ------------------------------
 poligonos.push(territorio1);
 
-// =============================
-// Función reutilizable: agregarEtiqueta
-// =============================
 function agregarEtiqueta(poligono, texto) {
   var latlngs = poligono.getLatLngs()[0];
-  var coords = latlngs.map(function (ll) {
-    return [ll.lng, ll.lat];
-  });
-
-  var first = coords[0];
-  var last = coords[coords.length - 1];
-  if (!first || first[0] !== last[0] || first[1] !== last[1])
-    coords.push([first[0], first[1]]);
-
+  var coords = latlngs.map(ll => [ll.lng, ll.lat]);
+  var first = coords[0], last = coords[coords.length - 1];
+  if (!first || first[0] !== last[0] || first[1] !== last[1]) coords.push([first[0], first[1]]);
   var centroide = turf.centroid(turf.polygon([coords]));
-  var cLat = centroide.geometry.coordinates[1];
-  var cLng = centroide.geometry.coordinates[0];
+  var cLat = centroide.geometry.coordinates[1], cLng = centroide.geometry.coordinates[0];
 
-  L.marker([cLat, cLng], {
-    icon: L.divIcon({
-      className: "etiqueta-poligono",
-      html: texto,
-      iconSize: [10, 18],
-      iconAnchor: [20, 9],
-    }),
-  }).addTo(territorio1);
+  L.marker([cLat, cLng], { icon: L.divIcon({ className: "etiqueta-poligono", html: texto, iconSize: [10, 18], iconAnchor: [20, 9] }) }).addTo(territorio1);
+}
+
+// =============================
+// Menú contextual
+// =============================
+function mostrarMenu(e, pol) {
+  ocultarMenu();
+  var menu = document.getElementById("menuContextual");
+  var x = e.originalEvent.clientX || (e.originalEvent.touches && e.originalEvent.touches[0].clientX);
+  var y = e.originalEvent.clientY || (e.originalEvent.touches && e.originalEvent.touches[0].clientY);
+  menu.style.left = x + "px";
+  menu.style.top = y + "px";
+  menu.style.display = "block";
+
+  menu.innerHTML = `
+    <button onclick="window.open('${pol._link}', '_blank'); ocultarMenu();">📍 Ubicación</button>
+    <button onclick="anadirNotaPopup('${pol._id}');">➕ Añadir nota</button>
+    <button onclick="verNotas('${pol._id}');">📒 Notas</button>
+  `;
+}
+
+function ocultarMenu() { document.getElementById("menuContextual").style.display = "none"; }
+
+// =============================
+// Notas con popup
+// =============================
+function anadirNotaPopup(id) {
+  ocultarMenu();
+  var contenido = document.createElement("div");
+  contenido.innerHTML = `
+    <b>Añadir nota:</b><br>
+    <textarea id="inputNota" rows="4" cols="30" placeholder="Escribe tu nota aquí..."></textarea><br>
+    <button id="guardarNota">💾 Guardar</button>
+    <button onclick="map.closePopup()">❌ Cancelar</button>
+  `;
+  var popup = L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
+
+  contenido.querySelector("#guardarNota").onclick = function () {
+    var texto = contenido.querySelector("#inputNota").value.trim();
+    if (!texto) return alert("La nota está vacía.");
+    if (!notasPoligonos[id]) notasPoligonos[id] = [];
+    notasPoligonos[id].push(texto);
+
+    // ✅ Cerrar popup automáticamente después de guardar
+    map.closePopup();
+  };
+}
+
+function verNotas(id) {
+  ocultarMenu();
+  mostrarNotasPopup(id);
+}
+
+function mostrarNotasPopup(id) {
+  var notas = notasPoligonos[id] || [];
+  if (notas.length === 0) { alert("📭 No hay notas."); return; }
+
+  var contenido = "<b>Notas:</b><br><br>";
+  notas.forEach((nota, i) => { contenido += `${i + 1}. ${nota} <button onclick="confirmarEliminarNotaPopup('${id}', ${i})">❌</button><br>`; });
+
+  L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
+}
+
+function confirmarEliminarNotaPopup(id, index) {
+  map.closePopup(); // cerrar notas
+  L.popup()
+    .setLatLng(map.getCenter())
+    .setContent(`
+      <b>¿Eliminar esta nota?</b><br>
+      <button onclick="eliminarNota('${id}', ${index})">✅ Sí</button>
+      <button onclick="map.closePopup()">❌ No</button>
+    `)
+    .openOn(map);
+}
+
+function eliminarNota(id, index) {
+  notasPoligonos[id].splice(index, 1);
+  map.closePopup();
 }
 
 

@@ -66,6 +66,9 @@
       padding: 6px 12px;
       font-size: 14px;
       cursor: pointer;
+      display: block;
+      margin: 5px 0;
+      width: 100%;
     }
   </style>
 </head>
@@ -82,10 +85,8 @@
   <!-- === MAPA === -->
   <div id="map"></div>
 
-  <!-- === MENÚ CONTEXTUAL === -->
-  <div id="menuContextual" class="menu-contextual" style="display:none; position:absolute; z-index:2000;">
-    <button id="btnUbicacion">Ubicación</button>
-  </div>
+  <!-- === MENÚ CONTEXTUAL (se llena dinámicamente) === -->
+  <div id="menuContextual" class="menu-contextual" style="display:none; position:absolute; z-index:2000;"></div>
 
   <!-- === LIBRERÍAS EXTERNAS === -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -106,6 +107,9 @@
 
     var poligonos = [];
 
+    // === OBJETO PARA GUARDAR NOTAS DE POLÍGONOS ===
+    var notasPoligonos = {};
+
     function verTerritorios() {
       if (areaGrande) map.fitBounds(areaGrande.getBounds());
     }
@@ -117,6 +121,63 @@
     function exportarPoligonos() {
       alert("Función de exportación aún no implementada.");
     }
+
+    // === FUNCIONES DE NOTAS ===
+    function anadirNota(id) {
+      var nuevaNota = prompt("Escribe tu nota:");
+      if (nuevaNota) {
+        if (!notasPoligonos[id]) {
+          notasPoligonos[id] = [];
+        }
+        notasPoligonos[id].push(nuevaNota);
+        alert("✅ Nota guardada!");
+      }
+      ocultarMenu();
+    }
+
+    function verNotas(id) {
+      var listaNotas = notasPoligonos[id] || [];
+      if (listaNotas.length === 0) {
+        alert("📭 No hay notas todavía.");
+        ocultarMenu();
+        return;
+      }
+
+      var notasTexto = listaNotas.map((n, i) => `${i + 1}. ${n}`).join("\n\n");
+      var editar = confirm("📒 Notas:\n\n" + notasTexto + "\n\n¿Quieres editar las notas?");
+
+      if (editar) {
+        var nuevasNotas = prompt("Edita las notas (separa por salto de línea):", listaNotas.join("\n"));
+        if (nuevasNotas !== null) {
+          notasPoligonos[id] = nuevasNotas.split("\n").filter(n => n.trim() !== "");
+          alert("✏️ Notas actualizadas!");
+        }
+      }
+      ocultarMenu();
+    }
+
+    // === FUNCIONES PARA MOSTRAR Y OCULTAR EL MENÚ CONTEXTUAL ===
+    function mostrarMenu(latlng, id, lat, lng) {
+      var menu = document.getElementById("menuContextual");
+      menu.style.left = event.pageX + "px";
+      menu.style.top = event.pageY + "px";
+      menu.style.display = "block";
+
+      // Se genera el contenido dinámicamente
+      menu.innerHTML = `
+        <button onclick="window.open('https://www.google.com/maps?q=${lat},${lng}', '_blank'); ocultarMenu();">📍 Ubicación</button>
+        <button onclick="anadirNota('${id}')">➕ Añadir nota</button>
+        <button onclick="verNotas('${id}')">📒 Notas</button>
+      `;
+    }
+
+    function ocultarMenu() {
+      var menu = document.getElementById("menuContextual");
+      menu.style.display = "none";
+    }
+
+    // Ocultar el menú si se da click en cualquier otra parte
+    map.on("click", ocultarMenu);
   </script>
 
   <!-- === ARCHIVOS EXTERNOS === -->
