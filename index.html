@@ -11,12 +11,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
 
   <style>
-    /* === MAPA === */
-    #map {
-      height: 950px;
-    }
-
-    /* === MENÚ SUPERIOR IZQUIERDO === */
+    #map { height: 950px; }
     .menu {
       position: fixed;
       top: 1vh;
@@ -27,20 +22,10 @@
       border-radius: 5px;
       display: flex;
       flex-wrap: wrap;
+      gap: 5px;
     }
-
-    button {
-      margin: 3px;
-      padding: 5px 5px;
-      font-size: 10px;
-    }
-
-    /* === BOTONES DE DIBUJO (Leaflet.Draw) === */
-    .leaflet-draw.leaflet-control {
-      margin-top: 5vh !important;
-    }
-
-    /* === ESTILO DE LAS ETIQUETAS DE POLÍGONOS === */
+    select, button { padding: 5px; font-size: 12px; }
+    .leaflet-draw.leaflet-control { margin-top: 5vh !important; }
     .etiqueta-poligono {
       background: rgba(255, 255, 255, 0.9);
       border-radius: 100px;
@@ -52,8 +37,6 @@
       pointer-events: none;
       white-space: nowrap;
     }
-
-    /* === MENÚ CONTEXTUAL PERSONALIZADO === */
     .menu-contextual {
       background: white;
       padding: 8px;
@@ -61,7 +44,6 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
       font-size: 14px;
     }
-
     .menu-contextual button {
       padding: 6px 12px;
       font-size: 14px;
@@ -74,61 +56,36 @@
 </head>
 
 <body>
-  <!-- === MENÚ DE BOTONES === -->
   <div class="menu">
-    <button onclick="verTerritorios()">Área Grande</button>
-    <button onclick="irATerritorio(1)">Territorio 1</button>
-    <button onclick="irATerritorio(2)">Territorio 2</button>
-    <button onclick="exportarPoligonos()">Exportar polígonos</button>
+    <select id="selectorTerritorios" onchange="cambiarTerritorio(); this.blur();">
+      <option value="">-- Selecciona un territorio --</option>
+      <option value="areaGrande">Área Grande</option>
+      <option value="territorio1">Territorio 1</option>
+      <option value="territorio2">Territorio 2</option>
+    </select>
   </div>
 
-  <!-- === MAPA === -->
   <div id="map"></div>
 
-  <!-- === MENÚ CONTEXTUAL (se llena dinámicamente) === -->
   <div id="menuContextual" class="menu-contextual" style="display:none; position:absolute; z-index:2000;"></div>
 
-  <!-- === LIBRERÍAS EXTERNAS === -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
   <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 
-  <!-- === CONFIGURACIÓN DEL MAPA BASE === -->
   <script>
-    var map = L.map("map", { maxZoom: 22, zoomControl: false }).setView(
-      [28.596, -106.0750],
-      14
-    );
+    var map = L.map("map", { maxZoom: 22, zoomControl: false }).setView([28.596, -106.0750], 14);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 22 }).addTo(map);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap",
-      maxZoom: 22,
-    }).addTo(map);
+    var poligonos = []; // array general de polígonos
+    var etiquetasActivas = []; // markers visibles
+    var notasPoligonos = {};  // notas
 
-    var poligonos = [];
-
-    // === OBJETO PARA GUARDAR NOTAS DE POLÍGONOS ===
-    var notasPoligonos = {};
-
-    function verTerritorios() {
-      if (areaGrande) map.fitBounds(areaGrande.getBounds());
-    }
-
-    function irATerritorio(n) {
-      if (poligonos[n - 1]) map.fitBounds(poligonos[n - 1].getBounds());
-    }
-
-    function exportarPoligonos() {
-      alert("Función de exportación aún no implementada.");
-    }
-
-    // === FUNCIONES DE NOTAS ===
+    // Funciones para notas
     function anadirNota(id) {
       var nuevaNota = prompt("Escribe tu nota:");
       if (nuevaNota) {
-        if (!notasPoligonos[id]) {
-          notasPoligonos[id] = [];
-        }
+        if (!notasPoligonos[id]) notasPoligonos[id] = [];
         notasPoligonos[id].push(nuevaNota);
         alert("✅ Nota guardada!");
       }
@@ -137,54 +94,83 @@
 
     function verNotas(id) {
       var listaNotas = notasPoligonos[id] || [];
-      if (listaNotas.length === 0) {
-        alert("📭 No hay notas todavía.");
-        ocultarMenu();
-        return;
-      }
-
-      var notasTexto = listaNotas.map((n, i) => `${i + 1}. ${n}`).join("\n\n");
-      var editar = confirm("📒 Notas:\n\n" + notasTexto + "\n\n¿Quieres editar las notas?");
-
+      if (listaNotas.length === 0) { alert("📭 No hay notas todavía."); ocultarMenu(); return; }
+      var notasTexto = listaNotas.map((n,i)=>`${i+1}. ${n}`).join("\n\n");
+      var editar = confirm("📒 Notas:\n\n"+notasTexto+"\n\n¿Quieres editar las notas?");
       if (editar) {
         var nuevasNotas = prompt("Edita las notas (separa por salto de línea):", listaNotas.join("\n"));
-        if (nuevasNotas !== null) {
-          notasPoligonos[id] = nuevasNotas.split("\n").filter(n => n.trim() !== "");
-          alert("✏️ Notas actualizadas!");
-        }
+        if (nuevasNotas !== null) notasPoligonos[id] = nuevasNotas.split("\n").filter(n=>n.trim()!=="");
+        alert("✏️ Notas actualizadas!");
       }
       ocultarMenu();
     }
 
-    // === FUNCIONES PARA MOSTRAR Y OCULTAR EL MENÚ CONTEXTUAL ===
-    function mostrarMenu(latlng, id, lat, lng) {
+    function mostrarMenu(e, id, lat, lng) {
       var menu = document.getElementById("menuContextual");
-      menu.style.left = event.pageX + "px";
-      menu.style.top = event.pageY + "px";
-      menu.style.display = "block";
-
-      // Se genera el contenido dinámicamente
+      var x = e.originalEvent.clientX || (e.originalEvent.touches && e.originalEvent.touches[0].clientX);
+      var y = e.originalEvent.clientY || (e.originalEvent.touches && e.originalEvent.touches[0].clientY);
+      menu.style.left = x + "px"; menu.style.top = y + "px"; menu.style.display = "block";
       menu.innerHTML = `
-        <button onclick="window.open('https://www.google.com/maps?q=${lat},${lng}', '_blank'); ocultarMenu();">📍 Ubicación</button>
+        <button onclick="window.open('https://www.google.com/maps?q=${lat},${lng}','_blank'); ocultarMenu();">📍 Ubicación</button>
         <button onclick="anadirNota('${id}')">➕ Añadir nota</button>
         <button onclick="verNotas('${id}')">📒 Notas</button>
       `;
     }
 
-    function ocultarMenu() {
-      var menu = document.getElementById("menuContextual");
-      menu.style.display = "none";
+    function ocultarMenu() { document.getElementById("menuContextual").style.display="none"; }
+    map.on("click", ocultarMenu);
+
+    // Función para mostrar etiquetas solo al seleccionar
+    function mostrarEtiquetas(territorio) {
+      etiquetasActivas.forEach(m => map.removeLayer(m));
+      etiquetasActivas = [];
+      territorio.eachLayer(function(pol) {
+        if (pol._label) {
+          let latlngs = pol.getLatLngs()[0];
+          let coords = latlngs.map(ll=>[ll.lng,ll.lat]);
+          coords.push([coords[0][0],coords[0][1]]);
+          let centroide = turf.centroid(turf.polygon([coords]));
+          let cLat = centroide.geometry.coordinates[1];
+          let cLng = centroide.geometry.coordinates[0];
+          let marker = L.marker([cLat,cLng], {
+            icon: L.divIcon({ className:"etiqueta-poligono", html:pol._label, iconSize:[10,18], iconAnchor:[20,9] })
+          }).addTo(map);
+          etiquetasActivas.push(marker);
+        }
+      });
     }
 
-    // Ocultar el menú si se da click en cualquier otra parte
-    map.on("click", ocultarMenu);
+    // Función para seleccionar territorio
+    function cambiarTerritorio() {
+      var selector = document.getElementById("selectorTerritorios");
+      var valor = selector.value;
+      selector.blur(); // cerrar menú en móvil
+
+      // ocultar todas etiquetas
+      etiquetasActivas.forEach(m => map.removeLayer(m));
+      etiquetasActivas = [];
+
+      if (valor === "areaGrande") {
+        if (typeof areaGrande !== "undefined" && areaGrande) map.fitBounds(areaGrande.getBounds());
+      } else if (valor === "territorio1") {
+        if (typeof territorio1 !== "undefined" && territorio1) {
+          map.fitBounds(territorio1.getBounds());
+          mostrarEtiquetas(territorio1);
+        }
+      } else if (valor === "territorio2") {
+        if (typeof territorio2 !== "undefined" && territorio2) {
+          map.fitBounds(territorio2.getBounds());
+          mostrarEtiquetas(territorio2);
+        }
+      }
+    }
   </script>
 
-  <!-- === ARCHIVOS EXTERNOS === -->
+  <!-- Archivos externos de territorios y dibujo -->
   <script src="area_grande.js"></script>
+  <script src="territoriobase.js"></script>
   <script src="territorio1.js"></script>
-  <script src="territorio2.js"></script>
   <script src="dibujo.js"></script>
 </body>
-
 </html>
+
