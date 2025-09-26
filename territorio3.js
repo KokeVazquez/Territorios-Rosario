@@ -11,7 +11,7 @@ var datosTerritorio3 = {
             coords: [
                 [28.617346, -106.080198], [28.617927, -106.079081], [28.617795, -106.078857], [28.616931, -106.079468]
             ],
-            color: "rgba(114, 73, 19, 1)",
+            color: "rgba(70, 44, 11, 1)",
             fillOpacity: 1.0,
             weight: 2,
             label: "Alsuper",
@@ -26,7 +26,7 @@ var datosTerritorio3 = {
             fillOpacity: 1.0,
             weight: 2,
             label: null,
-            link: "https://maps.app.goo.gl/nE6VfHDGNvadS3Xn8"
+            link: "https://maps.app.goo.gl/D3u9uBvAmSCX1bNXA"
         },
         {
             id: "Cuadra1_Territorio3",
@@ -37,7 +37,7 @@ var datosTerritorio3 = {
             fillOpacity: 0.8,
             weight: 2,
             label: "1",
-            link: "https://maps.app.goo.gl/zPBU1SvTJpLa2VR79"
+            link: "https://maps.app.goo.gl/Q71gy1fULtNKi59M7"
         },
         {
             id: "Cuadra2_Territorio3",
@@ -48,7 +48,7 @@ var datosTerritorio3 = {
             fillOpacity: 0.8,
             weight: 2,
             label: "2",
-            link: "https://maps.app.goo.gl/zPBU1SvTJpLa2VR79"
+            link: "https://maps.app.goo.gl/MD6GDCxyerxhhQGt7"
         },
         {
             id: "Cuadra3_Territorio3",
@@ -59,7 +59,7 @@ var datosTerritorio3 = {
             fillOpacity: 0.8,
             weight: 2,
             label: "3",
-            link: "https://maps.app.goo.gl/zPBU1SvTJpLa2VR79"
+            link: "https://maps.app.goo.gl/MPMyXGz2fYYMT2mZ6"
         },
         {
             id: "Cuadra4_Territorio3",
@@ -70,7 +70,7 @@ var datosTerritorio3 = {
             fillOpacity: 0.8,
             weight: 2,
             label: "4",
-            link: "https://maps.app.goo.gl/zPBU1SvTJpLa2VR79"
+            link: "https://maps.app.goo.gl/K9ZqmbykynF8TdUq7"
         },
         {
             id: "Cuadra5_Territorio3",
@@ -81,7 +81,7 @@ var datosTerritorio3 = {
             fillOpacity: 0.8,
             weight: 2,
             label: "5",
-            link: "https://maps.app.goo.gl/zPBU1SvTJpLa2VR79"
+            link: "https://maps.app.goo.gl/vRhTD11pNb5xtomAA"
         },
         {
             id: "Vacio",
@@ -92,7 +92,7 @@ var datosTerritorio3 = {
             fillOpacity: 1.0,
             weight: 2,
             label: null,
-            link: "https://maps.app.goo.gl/zPBU1SvTJpLa2VR79"
+            link: "https://maps.app.goo.gl/MBdJkA1qkfCs35c39"
         }
 
 

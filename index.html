@@ -96,6 +96,8 @@
       <option value="territorio1">Territorio 1</option>
       <option value="territorio2">Territorio 2</option>
       <option value="territorio3">Territorio 3</option>
+      <option value="territorio4">Territorio 4</option>
+
 
     </select>
   </div>
@@ -181,6 +183,13 @@
         if (typeof territorio3 !== "undefined" && territorio3) {
           map.fitBounds(territorio3.getBounds());
           mostrarEtiquetas(territorio3);
+
+        }
+      } else if (valor === "territorio4") {
+        if (typeof territorio4 !== "undefined" && territorio4) {
+          map.fitBounds(territorio4.getBounds());
+          mostrarEtiquetas(territorio4);
+
         }
 
 
@@ -205,6 +214,8 @@
   <script src="territorio1.js"></script>
   <script src="territorio2.js"></script>
   <script src="territorio3.js"></script>
+  <script src="territorio4.js"></script>
+
 
   <script src="dibujo.js"></script>
 
