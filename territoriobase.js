@@ -21,15 +21,24 @@ function crearTerritorio(datosTerritorio) {
     var pol = L.polygon(d.coords, { color: d.color, fillOpacity: d.fillOpacity, weight: d.weight }).addTo(grupo);
     pol._id = d.id;
     pol._link = d.link;
-
     pol._originalStyle = { color: pol.options.color, fillColor: pol.options.fillColor || pol.options.color, fillOpacity: pol.options.fillOpacity, weight: pol.options.weight };
-
     pol._selected = estadoGuardado[pol._id] || false;
     if (pol._selected) pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
-
     if (d.label) pol._label = d.label;
 
+    // ------------------------------
+    // Crear etiqueta fija si aplica
+    // ------------------------------
+    if (datosTerritorio.poligonoConEtiquetaFija && d.id === datosTerritorio.poligonoConEtiquetaFija) {
+      var centro = pol.getBounds().getCenter();
+      datosTerritorio.etiquetaFija = L.marker(centro, {
+        icon: L.divIcon({ className: 'etiqueta-fija', html: d.label || d.id })
+      }).addTo(map);
+    }
+
+    // ------------------------------
     // Selección
+    // ------------------------------
     pol.on("click", function () {
       pol._selected = !pol._selected;
       pol.setStyle(pol._selected ? { color: "gray", fillColor: "gray", fillOpacity: 0.9 } : pol._originalStyle);
@@ -38,11 +47,13 @@ function crearTerritorio(datosTerritorio) {
       if (pol._selected) abrirPopupTrabajado(pol._id, notasPoligonos, datosTerritorio.id);
     });
 
+    // ------------------------------
     // Menú contextual
+    // ------------------------------
     pol.on("contextmenu", function (e) { mostrarMenu(e, pol, notasPoligonos, datosTerritorio.id); });
   });
 
-  return { grupo: grupo, notasPoligonos: notasPoligonos };
+  return { grupo: grupo, notasPoligonos: notasPoligonos, etiquetaFija: datosTerritorio.etiquetaFija };
 }
 
 // =============================
@@ -106,7 +117,6 @@ function mostrarNotasPopup(id, notasPoligonos, territorioId) {
   else notas.forEach((nota, i) => contenido += `${i + 1}. ${nota} <button onclick="confirmarEliminarNotaPopup('${id}', ${i}, '${territorioId}')">❌</button><br>`);
 
   L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
-
 }
 
 function confirmarEliminarNotaPopup(id, index, territorioId) {
@@ -140,34 +150,37 @@ function abrirPopupTrabajado(id, notasPoligonos, territorioId) {
     var nombre = contenido.querySelector("#nombreTrabajado").value.trim();
     var fecha = contenido.querySelector("#fechaTrabajado").value;
     if (!nombre || !fecha) return;
-    if (!notasPoligonos[id]) notasPoligonos[id] = [];
-    notasPoligonos[id] = notasPoligonos[id].filter(n => !n.startsWith("Trabajado por:"));
-    notasPoligonos[id].push(`Trabajado por: ${nombre} | Fecha: ${fecha}`);
-    localStorage.setItem(territorioId + "_notas", JSON.stringify(notasPoligonos));
+
+    var capitanes = JSON.parse(localStorage.getItem(territorioId + "_capitanes") || "{}");
+    capitanes[id] = [`Trabajado por: ${nombre} | Fecha: ${fecha}`];
+    localStorage.setItem(territorioId + "_capitanes", JSON.stringify(capitanes));
+
     map.closePopup();
   };
 }
 
 function mostrarCapitanes(territorioId) {
   ocultarMenu();
-  var notasPoligonos = JSON.parse(localStorage.getItem(territorioId + "_notas") || "{}");
+  var capitanes = JSON.parse(localStorage.getItem(territorioId + "_capitanes") || "{}");
   var contenido = `<b>${territorioId}:</b><br><br>`;
-  Object.keys(notasPoligonos).forEach(polId => {
-    notasPoligonos[polId].forEach(nota => {
-      if (nota.startsWith("Trabajado por:")) {
-        var partes = nota.replace("Trabajado por: ", "").split("| Fecha:");
-        var nombre = partes[0].trim();
-        var fecha = partes[1].trim();
-        var fechaObj = new Date(fecha);
-        var fechaFormateada = ("0" + fechaObj.getDate()).slice(-2) + "/" +
-          ("0" + (fechaObj.getMonth() + 1)).slice(-2) +
-          "/" + fechaObj.getFullYear();
-        contenido += `<b>${polId}</b> - <span style="color:red;">${nombre}</span> - <b>Fecha:</b> <span style="color:red;">${fechaFormateada}</span> 
-                      <button onclick="confirmarEliminarCapitan('${polId}', '${territorioId}')">❌</button><br><br>`;
-      }
+
+  Object.keys(capitanes).forEach(polId => {
+    capitanes[polId].forEach(nota => {
+      var partes = nota.replace("Trabajado por: ", "").split("| Fecha:");
+      var nombre = partes[0].trim();
+      var fecha = partes[1].trim();
+      var fechaObj = new Date(fecha);
+      var fechaFormateada = ("0" + fechaObj.getDate()).slice(-2) + "/" +
+        ("0" + (fechaObj.getMonth() + 1)).slice(-2) +
+        "/" + fechaObj.getFullYear();
+
+      contenido += `<b>${polId}</b> - <span style="color:red;">${nombre}</span> - <b>Fecha:</b> <span style="color:red;">${fechaFormateada}</span> 
+                    <button onclick="confirmarEliminarCapitan('${polId}', '${territorioId}')">❌</button><br><br>`;
     });
   });
-  if (contenido === `<b>${territorioId}:</b><br><br>`) contenido += "No hay registros de capitanes aún.";
+
+  if (contenido === `<b>${territorioId}:</b><br><br>`)
+    contenido += "No hay registros de capitanes aún.";
 
   L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
 }
@@ -181,10 +194,17 @@ function confirmarEliminarCapitan(polId, territorioId) {
 }
 
 function eliminarCapitan(polId, territorioId) {
-  var notasPoligonos = JSON.parse(localStorage.getItem(territorioId + "_notas") || "{}");
-  if (!notasPoligonos[polId]) return;
-  notasPoligonos[polId] = notasPoligonos[polId].filter(n => !n.startsWith("Trabajado por:"));
-  localStorage.setItem(territorioId + "_notas", JSON.stringify(notasPoligonos));
+  var capitanes = JSON.parse(localStorage.getItem(territorioId + "_capitanes") || "{}");
+  if (!capitanes[polId]) return;
+
+  delete capitanes[polId];
+  localStorage.setItem(territorioId + "_capitanes", JSON.stringify(capitanes));
+
   mostrarCapitanes(territorioId);
 }
+
+// =============================
+// === Mostrar/Ocultar etiquetas fijas al seleccionar territorio
+
+
 

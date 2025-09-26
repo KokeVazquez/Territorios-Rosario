@@ -1,4 +1,4 @@
-/*
+
 
 
 
@@ -48,12 +48,12 @@ poligonos.push(poligono);`);
   a.download = "nuevo_territorio.js";
   a.click();
   URL.revokeObjectURL(url);
-} 
-  
+}
 
 
 
 
 
 
-*/
+
+
