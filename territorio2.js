@@ -4,46 +4,57 @@
 
 var datosTerritorio2 = {
     id: "territorio2",
-    numeroTerritorio: 2, // ← aquí defines qué número quieres mostrar
+    numeroTerritorio: 2, // Número que se mostrará en el marcador principal
     poligonos: [
         {
             id: "Cuadra1_Territorio2",
             coords: [
-                [28.616495, -106.081101], [28.616111, -106.081401], [28.616140, -106.080481]
+                [28.616495, -106.081099], [28.616107, -106.081399], [28.616140, -106.080485]
             ],
             color: "blue",
-            fillOpacity: 0.2,
+            fillOpacity: 0.8,
             weight: 2,
             label: "1",
-            link: "https://maps.app.goo.gl/P61enLhuVpALgMpWA"
+            link: "https://maps.app.goo.gl/BrCT8TNgddYyZkGt9"
         },
         {
             id: "Cuadra2_Territorio2",
             coords: [
-                [28.617295, -106.080307], [28.617127, -106.080632], [28.616542, -106.081063], [28.616142, -106.080369], [28.616121, -106.080063], [28.616854, -106.079528]
+                [28.617289, -106.080300], [28.617128, -106.080628], [28.616541, -106.081065], [28.616141, -106.080370], [28.616123, -106.080055], [28.616855, -106.079526]
             ],
             color: "blue",
-            fillOpacity: 0.2,
+            fillOpacity: 0.8,
             weight: 2,
             label: "2",
-            link: "https://maps.app.goo.gl/dQ7CVbQw7ts9W53E9"
-        }
+            link: "https://maps.app.goo.gl/8jHjSeqigLpfc6Bd6"
+        },
+        {
+            id: "Cuadra3_Territorio2",
+            coords: [
+                [28.616821, -106.079470], [28.616185, -106.079931], [28.616117, -106.079718], [28.616062, -106.079479], [28.616041, -106.079312], [28.616055, -106.078851], [28.616355, -106.078630]
+            ],
+            color: "blue",
+            fillOpacity: 0.8,
+            weight: 2,
+            label: "3",
+            link: "https://maps.app.goo.gl/FbEGNWZKJyeYuCD88"
+        },
     ],
 };
 
-// Crear el territorio usando la función base y guardar el objeto completo
+// ------------------------------
+// Crear territorio con base
+// ------------------------------
 var territorio2Data = crearTerritorio(datosTerritorio2);
 var territorio2 = territorio2Data.grupo;
 
-// ============================
-// Mostrar número fijo del territorio
-// ============================
-// Elegimos el polígono que tendrá la etiqueta al inicio
+// ------------------------------
+// Crear marcador inicial del territorio (número)
+// ------------------------------
 var polFijo = datosTerritorio2.poligonos.find(p => p.id === "Cuadra2_Territorio2");
 var centro = L.polygon(polFijo.coords).getBounds().getCenter();
 
-// Creamos el marcador del número del territorio
-var marcadorTerritorio = L.marker(centro, {
+var marcadorTerritorio2 = L.marker(centro, {
     icon: L.divIcon({
         className: "etiquetaTerritorio",
         html: `<b>${datosTerritorio2.numeroTerritorio}</b>`,
@@ -51,5 +62,5 @@ var marcadorTerritorio = L.marker(centro, {
     })
 }).addTo(map);
 
-// Guardar referencia para ocultar cuando se haga zoom desde select
-territorio2._marcadorTerritorio = marcadorTerritorio;
+// Guardamos la referencia en el grupo para poder ocultarla desde index
+territorio2._marcadorTerritorio = marcadorTerritorio2;

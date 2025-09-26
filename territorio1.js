@@ -29,7 +29,7 @@ var datosTerritorio1 = {
         [28.614318, -106.086169]
       ],
       color: "fuchsia",
-      fillOpacity: 0.2,
+      fillOpacity: 0.8,
       weight: 2,
       label: "1",
       link: "https://maps.app.goo.gl/3jBZofcfzsqaMbSg8"
@@ -42,7 +42,7 @@ var datosTerritorio1 = {
         [28.615439, -106.083972], [28.614807, -106.085195]
       ],
       color: "fuchsia",
-      fillOpacity: 0.2,
+      fillOpacity: 0.8,
       weight: 2,
       label: "2",
       link: "https://maps.app.goo.gl/BaLzy98ZWXqad7ED8"
@@ -54,7 +54,7 @@ var datosTerritorio1 = {
         [28.615803, -106.082794], [28.615987, -106.082904]
       ],
       color: "fuchsia",
-      fillOpacity: 0.2,
+      fillOpacity: 0.8,
       weight: 2,
       label: "3",
       link: "https://maps.app.goo.gl/DMVPi1x3392ot1DR8"
@@ -65,7 +65,7 @@ var datosTerritorio1 = {
         [28.615996, -106.082892], [28.615807, -106.082779], [28.615849, -106.08264], [28.615929, -106.082359],
         [28.615988, -106.082099], [28.616042, -106.081834], [28.616094, -106.081477], [28.617107, -106.080707]
       ],
-      color: "Gray",
+      color: "rgba(114, 73, 19, 1)",
       fillOpacity: 1.0,
       weight: 2,
       label: "Escuela",
@@ -90,7 +90,7 @@ var marcadorTerritorio1 = L.marker(centro, {
   icon: L.divIcon({
     className: "etiquetaTerritorio",
     html: `<b>${datosTerritorio1.numeroTerritorio}</b>`,
-    iconSize: [30, 30]
+    iconSize: [20, 20]
   })
 }).addTo(map);
 

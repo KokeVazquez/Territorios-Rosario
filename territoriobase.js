@@ -21,24 +21,15 @@ function crearTerritorio(datosTerritorio) {
     var pol = L.polygon(d.coords, { color: d.color, fillOpacity: d.fillOpacity, weight: d.weight }).addTo(grupo);
     pol._id = d.id;
     pol._link = d.link;
+
     pol._originalStyle = { color: pol.options.color, fillColor: pol.options.fillColor || pol.options.color, fillOpacity: pol.options.fillOpacity, weight: pol.options.weight };
+
     pol._selected = estadoGuardado[pol._id] || false;
     if (pol._selected) pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
+
     if (d.label) pol._label = d.label;
 
-    // ------------------------------
-    // Crear etiqueta fija si aplica
-    // ------------------------------
-    if (datosTerritorio.poligonoConEtiquetaFija && d.id === datosTerritorio.poligonoConEtiquetaFija) {
-      var centro = pol.getBounds().getCenter();
-      datosTerritorio.etiquetaFija = L.marker(centro, {
-        icon: L.divIcon({ className: 'etiqueta-fija', html: d.label || d.id })
-      }).addTo(map);
-    }
-
-    // ------------------------------
     // Selección
-    // ------------------------------
     pol.on("click", function () {
       pol._selected = !pol._selected;
       pol.setStyle(pol._selected ? { color: "gray", fillColor: "gray", fillOpacity: 0.9 } : pol._originalStyle);
@@ -47,13 +38,11 @@ function crearTerritorio(datosTerritorio) {
       if (pol._selected) abrirPopupTrabajado(pol._id, notasPoligonos, datosTerritorio.id);
     });
 
-    // ------------------------------
     // Menú contextual
-    // ------------------------------
     pol.on("contextmenu", function (e) { mostrarMenu(e, pol, notasPoligonos, datosTerritorio.id); });
   });
 
-  return { grupo: grupo, notasPoligonos: notasPoligonos, etiquetaFija: datosTerritorio.etiquetaFija };
+  return { grupo: grupo, notasPoligonos: notasPoligonos };
 }
 
 // =============================
@@ -117,6 +106,7 @@ function mostrarNotasPopup(id, notasPoligonos, territorioId) {
   else notas.forEach((nota, i) => contenido += `${i + 1}. ${nota} <button onclick="confirmarEliminarNotaPopup('${id}', ${i}, '${territorioId}')">❌</button><br>`);
 
   L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
+
 }
 
 function confirmarEliminarNotaPopup(id, index, territorioId) {
@@ -159,6 +149,7 @@ function abrirPopupTrabajado(id, notasPoligonos, territorioId) {
   };
 }
 
+
 function mostrarCapitanes(territorioId) {
   ocultarMenu();
   var capitanes = JSON.parse(localStorage.getItem(territorioId + "_capitanes") || "{}");
@@ -185,6 +176,7 @@ function mostrarCapitanes(territorioId) {
   L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
 }
 
+
 function confirmarEliminarCapitan(polId, territorioId) {
   L.popup().setLatLng(map.getCenter()).setContent(`
     <b>¿Eliminar este registro de Capitán?</b><br>
@@ -202,9 +194,5 @@ function eliminarCapitan(polId, territorioId) {
 
   mostrarCapitanes(territorioId);
 }
-
-// =============================
-// === Mostrar/Ocultar etiquetas fijas al seleccionar territorio
-
 
 

@@ -43,7 +43,8 @@
       padding: 1px 5px;
       font-weight: 500;
       font-size: 15px;
-      color: #060606;
+      color: black;
+      text-align: center;
       box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
       pointer-events: none;
       white-space: nowrap;
@@ -67,18 +68,25 @@
     }
 
     .etiquetaTerritorio {
-      background: rgba(255, 255, 255, 0.95);
+      background: none;
       border-radius: 50%;
-      padding: 5px 10px;
+      padding: 5px 1px;
       font-weight: bold;
-      font-size: 18px;
-      color: #000;
+      font-size: 20px;
+      color: black;
       text-align: center;
       pointer-events: none;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0px 0px black;
     }
   </style>
 </head>
+
+
+<!--
+===================================================================================================================================
+                                                                  TERRITORIOS
+===================================================================================================================================
+-->
 
 <body>
   <div class="menu">
@@ -87,6 +95,8 @@
       <option value="areaGrande">Área Grande</option>
       <option value="territorio1">Territorio 1</option>
       <option value="territorio2">Territorio 2</option>
+      <option value="territorio3">Territorio 3</option>
+
     </select>
   </div>
 
@@ -167,6 +177,13 @@
           map.fitBounds(territorio2.getBounds());
           mostrarEtiquetas(territorio2);
         }
+      } else if (valor === "territorio3") {
+        if (typeof territorio3 !== "undefined" && territorio3) {
+          map.fitBounds(territorio3.getBounds());
+          mostrarEtiquetas(territorio3);
+        }
+
+
       }
     }
 
@@ -187,6 +204,8 @@
   <script src="territoriobase.js"></script>
   <script src="territorio1.js"></script>
   <script src="territorio2.js"></script>
+  <script src="territorio3.js"></script>
+
   <script src="dibujo.js"></script>
 
 </body>
