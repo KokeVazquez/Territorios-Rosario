@@ -66,7 +66,7 @@ function mostrarMenu(e, pol, notasPoligonos, territorioId) {
   `;
 }
 
-function ocultarMenu() { document.getElementById("menuContextual").style.display="none"; }
+function ocultarMenu() { document.getElementById("menuContextual").style.display = "none"; }
 
 function anadirNotaPopup(id, territorioId) {
   ocultarMenu();
@@ -93,6 +93,7 @@ function anadirNotaPopup(id, territorioId) {
 function verNotas(id, territorioId) {
   var notasPoligonos = JSON.parse(localStorage.getItem(territorioId + "_notas") || "{}");
   mostrarNotasPopup(id, notasPoligonos, territorioId);
+  map.closePopup();
 }
 
 function mostrarNotasPopup(id, notasPoligonos, territorioId) {
@@ -101,7 +102,7 @@ function mostrarNotasPopup(id, notasPoligonos, territorioId) {
 
   var contenido = "<b>Notas:</b><br><br>";
   if (notas.length === 0) contenido += "No hay notas aún.";
-  else notas.forEach((nota, i)=> contenido += `${i+1}. ${nota} <button onclick="confirmarEliminarNotaPopup('${id}', ${i}, '${territorioId}')">❌</button><br>`);
+  else notas.forEach((nota, i) => contenido += `${i + 1}. ${nota} <button onclick="confirmarEliminarNotaPopup('${id}', ${i}, '${territorioId}')">❌</button><br>`);
 
   L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
 }
@@ -127,7 +128,7 @@ function abrirPopupTrabajado(id, notasPoligonos, territorioId) {
   contenido.innerHTML = `
     <b>Trabajado:</b><br>
     Nombre: <input type="text" id="nombreTrabajado" placeholder="Nombre"><br>
-    Fecha: <input type="date" id="fechaTrabajado" value="${new Date().toISOString().slice(0,10)}"><br>
+    Fecha: <input type="date" id="fechaTrabajado" value="${new Date().toISOString().slice(0, 10)}"><br>
     <button id="guardarTrabajado">💾 Guardar</button>
     <button onclick="map.closePopup()">❌ Cancelar</button>
   `;
@@ -149,16 +150,16 @@ function mostrarCapitanes(territorioId) {
   ocultarMenu();
   var notasPoligonos = JSON.parse(localStorage.getItem(territorioId + "_notas") || "{}");
   var contenido = `<b>${territorioId}:</b><br><br>`;
-  Object.keys(notasPoligonos).forEach(polId=>{
-    notasPoligonos[polId].forEach(nota=>{
+  Object.keys(notasPoligonos).forEach(polId => {
+    notasPoligonos[polId].forEach(nota => {
       if (nota.startsWith("Trabajado por:")) {
         var partes = nota.replace("Trabajado por: ", "").split("| Fecha:");
         var nombre = partes[0].trim();
         var fecha = partes[1].trim();
         var fechaObj = new Date(fecha);
-        var fechaFormateada = ("0"+fechaObj.getDate()).slice(-2) + "/" +
-                               ("0"+(fechaObj.getMonth()+1)).slice(-2) +
-                               "/" + fechaObj.getFullYear();
+        var fechaFormateada = ("0" + fechaObj.getDate()).slice(-2) + "/" +
+          ("0" + (fechaObj.getMonth() + 1)).slice(-2) +
+          "/" + fechaObj.getFullYear();
         contenido += `<b>${polId}</b> - <span style="color:red;">${nombre}</span> - <b>Fecha:</b> <span style="color:red;">${fechaFormateada}</span> 
                       <button onclick="confirmarEliminarCapitan('${polId}', '${territorioId}')">❌</button><br><br>`;
       }
