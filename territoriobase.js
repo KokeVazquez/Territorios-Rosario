@@ -91,24 +91,22 @@ function anadirNotaPopup(id, territorioId) {
 }
 
 function verNotas(id, territorioId) {
+  ocultarMenu();
   var notasPoligonos = JSON.parse(localStorage.getItem(territorioId + "_notas") || "{}");
   mostrarNotasPopup(id, notasPoligonos, territorioId);
-  map.closePopup();
 }
 
 function mostrarNotasPopup(id, notasPoligonos, territorioId) {
-  ocultarMenu(); // 🔴 Esto cierra el menú contextual
-
+  map.closePopup();
   var notas = notasPoligonos[id] || [];
   notas = notas.filter(n => !n.startsWith("Trabajado por:"));
 
   var contenido = "<b>Notas:</b><br><br>";
   if (notas.length === 0) contenido += "No hay notas aún.";
-  else notas.forEach((nota, i) =>
-    contenido += `${i + 1}. ${nota} <button onclick="confirmarEliminarNotaPopup('${id}', ${i}, '${territorioId}')">❌</button><br>`
-  );
+  else notas.forEach((nota, i) => contenido += `${i + 1}. ${nota} <button onclick="confirmarEliminarNotaPopup('${id}', ${i}, '${territorioId}')">❌</button><br>`);
 
   L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
+
 }
 
 function confirmarEliminarNotaPopup(id, index, territorioId) {
