@@ -101,14 +101,90 @@
       <option value="territorio6">Territorio 6</option>
       <option value="territorio7">Territorio 7</option>
       <option value="territorio8">Territorio 8</option>
-
-
-
-
-
+      <option value="territorio9">Territorio 9</option>
+      <option value="territorio10">Territorio 10</option>
+      <option value="territorio11">Territorio 11</option>
+      <option value="territorio12">Territorio 12</option>
+      <option value="territorio13">Territorio 13</option>
+      <option value="territorio14">Territorio 14</option>
+      <option value="territorio15">Territorio 15</option>
+      <option value="territorio16">Territorio 16</option>
+      <option value="territorio17">Territorio 17</option>
+      <option value="territorio18">Territorio 18</option>
+      <option value="territorio19">Territorio 19</option>
+      <option value="territorio20">Territorio 20</option>
+      <option value="territorio21">Territorio 21</option>
+      <option value="territorio22">Territorio 22</option>
+      <option value="territorio23">Territorio 23</option>
+      <option value="territorio24">Territorio 24</option>
+      <option value="territorio25">Territorio 25</option>
+      <option value="territorio26">Territorio 26</option>
+      <option value="territorio27">Territorio 27</option>
+      <option value="territorio28">Territorio 28</option>
+      <option value="territorio29">Territorio 29</option>
+      <option value="territorio30">Territorio 30</option>
+      <option value="territorio31">Territorio 31</option>
+      <option value="territorio32">Territorio 32</option>
+      <option value="territorio33">Territorio 33</option>
+      <option value="territorio34">Territorio 34</option>
+      <option value="territorio35">Territorio 35</option>
+      <option value="territorio36">Territorio 36</option>
+      <option value="territorio37">Territorio 37</option>
+      <option value="territorio38">Territorio 38</option>
+      <option value="territorio39">Territorio 39</option>
+      <option value="territorio40">Territorio 40</option>
+      <option value="territorio41">Territorio 41</option>
+      <option value="territorio42">Territorio 42</option>
+      <option value="territorio43">Territorio 43</option>
+      <option value="territorio44">Territorio 44</option>
+      <option value="territorio45">Territorio 45</option>
+      <option value="territorio46">Territorio 46</option>
+      <option value="territorio47">Territorio 47</option>
+      <option value="territorio48">Territorio 48</option>
+      <option value="territorio49">Territorio 49</option>
+      <option value="territorio50">Territorio 50</option>
+      <option value="territorio51">Territorio 51</option>
+      <option value="territorio52">Territorio 52</option>
+      <option value="territorio53">Territorio 53</option>
+      <option value="territorio54">Territorio 54</option>
+      <option value="territorio55">Territorio 55</option>
+      <option value="territorio56">Territorio 56</option>
+      <option value="territorio57">Territorio 57</option>
+      <option value="territorio58">Territorio 58</option>
+      <option value="territorio59">Territorio 59</option>
+      <option value="territorio60">Territorio 60</option>
+      <option value="territorio61">Territorio 61</option>
+      <option value="territorio62">Territorio 62</option>
+      <option value="territorio63">Territorio 63</option>
+      <option value="territorio64">Territorio 64</option>
+      <option value="territorio65">Territorio 65</option>
+      <option value="territorio66">Territorio 66</option>
+      <option value="territorio67">Territorio 67</option>
+      <option value="territorio68">Territorio 68</option>
+      <option value="territorio69">Territorio 69</option>
+      <option value="territorio70">Territorio 70</option>
+      <option value="territorio71">Territorio 71</option>
+      <option value="territorio72">Territorio 72</option>
+      <option value="territorio73">Territorio 73</option>
+      <option value="territorio74">Territorio 74</option>
+      <option value="territorio75">Territorio 75</option>
+      <option value="territorio76">Territorio 76</option>
+      <option value="territorio77">Territorio 77</option>
+      <option value="territorio78">Territorio 78</option>
+      <option value="territorio79">Territorio 79</option>
+      <option value="territorio80">Territorio 80</option>
+      <option value="territorio81">Territorio 81</option>
+      <option value="territorio82">Territorio 82</option>
+      <option value="territorio83">Territorio 83</option>
+      <option value="territorio84">Territorio 84</option>
 
     </select>
   </div>
+  <!--
+===================================================================================================================================
+                                                                  FIN TERRITORIOS
+===================================================================================================================================
+-->
 
   <button onclick="exportarPoligonos()" style="position: absolute; top:10px; right:850px; z-index:1000;">📤 Exportar
     polígonos</button>
@@ -177,57 +253,17 @@
       // Ajustar zoom y mostrar etiquetas
       if (valor === "areaGrande") {
         if (typeof areaGrande !== "undefined" && areaGrande) map.fitBounds(areaGrande.getBounds());
-      } else if (valor === "territorio1") {
-        if (typeof territorio1 !== "undefined" && territorio1) {
-          map.fitBounds(territorio1.getBounds());
-          mostrarEtiquetas(territorio1);
+      } else {
+        // Para territorios 1 a 84
+        const match = valor.match(/^territorio(\d+)$/);
+        if (match) {
+          const num = match[1];
+          const grupo = window[`territorio${num}`];
+          if (typeof grupo !== "undefined" && grupo) {
+            map.fitBounds(grupo.getBounds());
+            mostrarEtiquetas(grupo);
+          }
         }
-      } else if (valor === "territorio2") {
-        if (typeof territorio2 !== "undefined" && territorio2) {
-          map.fitBounds(territorio2.getBounds());
-          mostrarEtiquetas(territorio2);
-        }
-      } else if (valor === "territorio3") {
-        if (typeof territorio3 !== "undefined" && territorio3) {
-          map.fitBounds(territorio3.getBounds());
-          mostrarEtiquetas(territorio3);
-
-        }
-      } else if (valor === "territorio4") {
-        if (typeof territorio4 !== "undefined" && territorio4) {
-          map.fitBounds(territorio4.getBounds());
-          mostrarEtiquetas(territorio4);
-
-        }
-
-      } else if (valor === "territorio5") {
-        if (typeof territorio5 !== "undefined" && territorio5) {
-          map.fitBounds(territorio5.getBounds());
-          mostrarEtiquetas(territorio5);
-
-        }
-      } else if (valor === "territorio6") {
-        if (typeof territorio6 !== "undefined" && territorio6) {
-          map.fitBounds(territorio6.getBounds());
-          mostrarEtiquetas(territorio6);
-
-        }
-      } else if (valor === "territorio7") {
-        if (typeof territorio7 !== "undefined" && territorio7) {
-          map.fitBounds(territorio7.getBounds());
-          mostrarEtiquetas(territorio7);
-
-        }
-      } else if (valor === "territorio8") {
-        if (typeof territorio8 !== "undefined" && territorio8) {
-          map.fitBounds(territorio8.getBounds());
-          mostrarEtiquetas(territorio8);
-
-        }
-
-
-
-
       }
     }
 
@@ -244,6 +280,9 @@
   </script>
 
   <!-- Archivos externos de territorios -->
+
+  <script src="dibujo.js"></script>
+
   <script src="area_grande.js"></script>
   <script src="territoriobase.js"></script>
   <script src="territorio1.js"></script>
@@ -254,13 +293,82 @@
   <script src="territorio6.js"></script>
   <script src="territorio7.js"></script>
   <script src="territorio8.js"></script>
-
-
-
-
-
-
-  <script src="dibujo.js"></script>
+  <script src="territorio9.js"></script>
+  <script src="territorio10.js"></script>
+  <script src="territorio11.js"></script>
+  <script src="territorio12.js"></script>
+  <script src="territorio13.js"></script>
+  <script src="territorio14.js"></script>
+  <script src="territorio15.js"></script>
+  <script src="territorio16.js"></script>
+  <script src="territorio17.js"></script>
+  <script src="territorio18.js"></script>
+  <script src="territorio19.js"></script>
+  <script src="territorio20.js"></script>
+  <script src="territorio21.js"></script>
+  <script src="territorio22.js"></script>
+  <script src="territorio23.js"></script>
+  <script src="territorio24.js"></script>
+  <script src="territorio25.js"></script>
+  <script src="territorio26.js"></script>
+  <script src="territorio27.js"></script>
+  <script src="territorio28.js"></script>
+  <script src="territorio29.js"></script>
+  <script src="territorio30.js"></script>
+  <script src="territorio31.js"></script>
+  <script src="territorio32.js"></script>
+  <script src="territorio33.js"></script>
+  <script src="territorio34.js"></script>
+  <script src="territorio35.js"></script>
+  <script src="territorio36.js"></script>
+  <script src="territorio37.js"></script>
+  <script src="territorio38.js"></script>
+  <script src="territorio39.js"></script>
+  <script src="territorio40.js"></script>
+  <script src="territorio41.js"></script>
+  <script src="territorio42.js"></script>
+  <script src="territorio43.js"></script>
+  <script src="territorio44.js"></script>
+  <script src="territorio45.js"></script>
+  <script src="territorio46.js"></script>
+  <script src="territorio47.js"></script>
+  <script src="territorio48.js"></script>
+  <script src="territorio49.js"></script>
+  <script src="territorio50.js"></script>
+  <script src="territorio51.js"></script>
+  <script src="territorio52.js"></script>
+  <script src="territorio53.js"></script>
+  <script src="territorio54.js"></script>
+  <script src="territorio55.js"></script>
+  <script src="territorio56.js"></script>
+  <script src="territorio57.js"></script>
+  <script src="territorio58.js"></script>
+  <script src="territorio59.js"></script>
+  <script src="territorio60.js"></script>
+  <script src="territorio61.js"></script>
+  <script src="territorio62.js"></script>
+  <script src="territorio63.js"></script>
+  <script src="territorio64.js"></script>
+  <script src="territorio65.js"></script>
+  <script src="territorio66.js"></script>
+  <script src="territorio67.js"></script>
+  <script src="territorio68.js"></script>
+  <script src="territorio69.js"></script>
+  <script src="territorio70.js"></script>
+  <script src="territorio71.js"></script>
+  <script src="territorio72.js"></script>
+  <script src="territorio73.js"></script>
+  <script src="territorio74.js"></script>
+  <script src="territorio75.js"></script>
+  <script src="territorio76.js"></script>
+  <script src="territorio77.js"></script>
+  <script src="territorio78.js"></script>
+  <script src="territorio79.js"></script>
+  <script src="territorio80.js"></script>
+  <script src="territorio81.js"></script>
+  <script src="territorio82.js"></script>
+  <script src="territorio83.js"></script>
+  <script src="territorio84.js"></script>
 
 </body>
 
