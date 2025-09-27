@@ -97,12 +97,20 @@
       <option value="territorio2">Territorio 2</option>
       <option value="territorio3">Territorio 3</option>
       <option value="territorio4">Territorio 4</option>
+      <option value="territorio5">Territorio 5</option>
+      <option value="territorio6">Territorio 6</option>
+      <option value="territorio7">Territorio 7</option>
+      <option value="territorio8">Territorio 8</option>
+
+
+
+
 
 
     </select>
   </div>
 
-  <button onclick="exportarPoligonos()" style="position: absolute; top:10px; right:1500px; z-index:1000;">📤 Exportar
+  <button onclick="exportarPoligonos()" style="position: absolute; top:10px; right:850px; z-index:1000;">📤 Exportar
     polígonos</button>
 
   <div id="map"></div>
@@ -192,6 +200,33 @@
 
         }
 
+      } else if (valor === "territorio5") {
+        if (typeof territorio5 !== "undefined" && territorio5) {
+          map.fitBounds(territorio5.getBounds());
+          mostrarEtiquetas(territorio5);
+
+        }
+      } else if (valor === "territorio6") {
+        if (typeof territorio6 !== "undefined" && territorio6) {
+          map.fitBounds(territorio6.getBounds());
+          mostrarEtiquetas(territorio6);
+
+        }
+      } else if (valor === "territorio7") {
+        if (typeof territorio7 !== "undefined" && territorio7) {
+          map.fitBounds(territorio7.getBounds());
+          mostrarEtiquetas(territorio7);
+
+        }
+      } else if (valor === "territorio8") {
+        if (typeof territorio8 !== "undefined" && territorio8) {
+          map.fitBounds(territorio8.getBounds());
+          mostrarEtiquetas(territorio8);
+
+        }
+
+
+
 
       }
     }
@@ -215,6 +250,14 @@
   <script src="territorio2.js"></script>
   <script src="territorio3.js"></script>
   <script src="territorio4.js"></script>
+  <script src="territorio5.js"></script>
+  <script src="territorio6.js"></script>
+  <script src="territorio7.js"></script>
+  <script src="territorio8.js"></script>
+
+
+
+
 
 
   <script src="dibujo.js"></script>
