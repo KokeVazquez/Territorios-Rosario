@@ -79,6 +79,19 @@
       box-shadow: 0 0px 0px black;
     }
   </style>
+  <style>
+    .boton-exportar {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      padding: 8px 12px;
+      background: white;
+      border: 1px solid gray;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 
@@ -186,8 +199,10 @@
 ===================================================================================================================================
 -->
 
-  <button onclick="exportarPoligonos()" style="position: absolute; top:100px; right:1600px; z-index:1000;">📤 Exportar
-    polígonos</button>
+  <button onclick="exportarPoligonos()" style="position: absolute; top: 20px; right: 20px; z-index: 1000;">
+    📤 Exportar
+  </button>
+
 
   <div id="map"></div>
   <div id="menuContextual" class="menu-contextual" style="display:none; position:absolute; z-index:2000;"></div>
@@ -197,7 +212,7 @@
   <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 
   <script>
-    var map = L.map("map", { maxZoom: 22, zoomControl: false }).setView([28.608, -106.0650], 15);
+    var map = L.map("map", { maxZoom: 22, zoomControl: false }).setView([28.608, -106.0680], 15);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 22 }).addTo(map);
 
     var etiquetasActivas = [];
