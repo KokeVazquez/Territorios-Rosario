@@ -21,7 +21,7 @@
       z-index: 1000;
       background: rgba(255, 255, 255, 0.85);
       padding: 0.5em;
-      border-radius: 5px;
+      border-radius: px;
       display: flex;
       flex-wrap: wrap;
       gap: 5px;
@@ -197,7 +197,7 @@
   <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 
   <script>
-    var map = L.map("map", { maxZoom: 22, zoomControl: false }).setView([28.596, -106.0750], 14);
+    var map = L.map("map", { maxZoom: 22, zoomControl: false }).setView([28.608, -106.0750], 15);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 22 }).addTo(map);
 
     var etiquetasActivas = [];
