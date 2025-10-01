@@ -66,7 +66,7 @@
     #selectorTerritorios:hover {
       background-color: #ffffff;
       /* fondo negro */
-      color: #000000;
+      color: #1f1e1e;
       /* texto blanco */
       border-color: #444;
       /* borde gris oscuro */
@@ -102,9 +102,14 @@
     }
 
     .etiqueta-poligono {
+      display: inline-block;
+      /* se ajusta al contenido del texto */
       background: rgba(255, 255, 255, 0.9);
-      border-radius: 100px;
-      padding: 1px 5px;
+      /* fondo blanco translúcido */
+      border-radius: 50px;
+      /* hace la “píldora” */
+      padding: 2px 10px;
+      /* espacio arriba/abajo y a los lados */
       font-weight: 500;
       font-size: 15px;
       color: black;
@@ -112,7 +117,9 @@
       box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
       pointer-events: none;
       white-space: nowrap;
+      /* evita que el texto se rompa */
     }
+
 
     .menu-contextual {
       background: white;
@@ -309,12 +316,20 @@
           let centroide = turf.centroid(turf.polygon([coords]));
           let cLat = centroide.geometry.coordinates[1];
           let cLng = centroide.geometry.coordinates[0];
+
           let marker = L.marker([cLat, cLng], {
-            icon: L.divIcon({ className: "etiqueta-poligono", html: pol._label, iconSize: [10, 18], iconAnchor: [20, 9] })
+            icon: L.divIcon({
+              className: "etiqueta-poligono",
+              html: pol._label,
+              iconSize: null,       // <- tamaño automático según el texto
+              iconAnchor: [0, 0]    // <- ajusta para centrar la etiqueta
+            })
           }).addTo(map);
+
           etiquetasActivas.push(marker);
         }
       });
+
     }
 
     // ===============================
