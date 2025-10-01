@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 
+
 <head>
   <title>Mapa Interactivo</title>
   <meta charset="utf-8" />
@@ -10,9 +11,19 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
 
   <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
     #map {
       height: 100vh;
       width: 100vw;
+      margin: 0;
+      padding: 0;
     }
 
     .menu {
@@ -230,11 +241,11 @@
     <!-- Botón Área Grande -->
     <button id="btnAreaGrande">Área Grande</button>
   </div>
-  <!--
- <button onclick="exportarPoligonos()" style="position: absolute; top: 20px; right: 20px; z-index: 1000;">
+
+  <button onclick="exportarPoligonos()" style="position: absolute; top: 100px; right: 20px; z-index: 1000;">
     📤 Exportar
-  </button>  
--->
+  </button>
+
 
   <div id="map"></div>
   <div id="menuContextual" class="menu-contextual" style="display:none; position:absolute; z-index:2000;"></div>
@@ -252,7 +263,7 @@
     ]);
     var overlayGris;
 
-    map.fitBounds(boundsIniciales, { padding: [20, 20] });
+    map.fitBounds(boundsIniciales, { padding: [5, 5] });
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap",
@@ -368,7 +379,11 @@
       if (overlayGris) map.removeLayer(overlayGris);
       // Hacer zoom al área grande
       if (typeof areaGrande !== "undefined" && areaGrande) {
-        map.fitBounds(areaGrande.getBounds(), { padding: [1, 1] });
+        map.fitBounds(areaGrande.getBounds(), {
+          padding: [20, 20],
+          maxZoom: 15,
+          animate: true
+        });
       }
 
       // Borrar etiquetas de territorios anteriores
