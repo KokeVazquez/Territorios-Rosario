@@ -313,10 +313,19 @@
     }
 
     document.getElementById("btnAreaGrande").addEventListener("click", function () {
+      // Resetear el select para que no quede seleccionado ningún territorio
+      document.getElementById("selectorTerritorios").value = "";
+
+      // Hacer zoom al área grande
       if (typeof areaGrande !== "undefined" && areaGrande) {
-        map.fitBounds(areaGrande.getBounds());
+        map.fitBounds(areaGrande.getBounds(), { padding: [5, 5] });
       }
+
+      // Borrar etiquetas de territorios anteriores
+      etiquetasActivas.forEach(m => map.removeLayer(m));
+      etiquetasActivas = [];
     });
+
 
     function registrarMarcadorFijo(marker) {
       if (!window.marcadoresIniciales.includes(marker)) {
