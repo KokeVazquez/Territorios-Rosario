@@ -40,14 +40,14 @@ var datosTerritorio38 = {
             link: "https://maps.app.goo.gl/PziGppJedBdTQjx97"
         },
         {
-            id: "Cuadra3_Territorio38",
+            id: "Vacio",
             coords: [
                 [[28.615653, -106.079474], [28.615597, -106.079425], [28.615479, -106.079241], [28.615663, -106.079109]]
             ],
             color: "rgba(70, 44, 11, 1)",
             fillOpacity: 0.8,
             weight: 2,
-            label: "3",
+            label: null,
             link: "https://maps.app.goo.gl/VZ4hoW6iWuveGpJM6"
         }
     ],

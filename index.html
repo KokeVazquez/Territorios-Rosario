@@ -249,6 +249,7 @@
       [28.600, -106.075],
       [28.618, -106.070]
     ]);
+    var overlayGris;
 
     map.fitBounds(boundsIniciales, { padding: [20, 20] });
 
@@ -264,6 +265,50 @@
     function verNotas(id) { /* tu lógica existente */ }
     function mostrarMenu(e, id, lat, lng) { /* tu lógica existente */ }
     function ocultarMenu() { document.getElementById("menuContextual").style.display = "none"; }
+    function enfocarTerritorio(territorio) {
+      // Quitar overlay previo
+      if (overlayGris) map.removeLayer(overlayGris);
+
+      // Coordenadas del "mundo" (o área del mapa)
+      var mundo = [
+        [90, -180],
+        [90, 180],
+        [-90, 180],
+        [-90, -180],
+        [90, -180]
+      ];
+
+      // Usamos los límites del territorio como "hueco"
+      var huecos = [];
+      territorio.eachLayer(function (pol) {
+        if (pol.getLatLngs) {
+          huecos.push(pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
+        }
+      });
+
+      // Crear el polígono con huecos
+      overlayGris = L.polygon([mundo, ...huecos], {
+        color: "#000",
+        fillColor: "#000",
+        fillOpacity: 0.6,
+        stroke: false,
+        interactive: false
+      }).addTo(map);
+
+
+      // Tomar los polígonos del territorio seleccionado
+      var territoriosCoords = grupo.getLayers().map(pol => pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
+
+      // Crear overlay gris con hueco
+      overlayGris = L.polygon([bounds].concat(territoriosCoords), {
+        color: "rgba(0,0,0,0)",
+        fillColor: "rgba(0,0,0,0.4)",
+        fillOpacity: 0.4,
+        weight: 0,
+        interactive: false
+      }).addTo(map);
+    }
+
     map.on("click", ocultarMenu);
 
     function mostrarEtiquetas(territorio) {
@@ -301,6 +346,9 @@
       etiquetasActivas.forEach(m => map.removeLayer(m));
       etiquetasActivas = [];
 
+      // Quitar overlay anterior si existe
+      if (overlayGris) map.removeLayer(overlayGris);
+
       const match = valor.match(/^territorio(\d+)$/);
       if (match) {
         const num = match[1];
@@ -308,14 +356,15 @@
         if (typeof grupo !== "undefined" && grupo && grupo.getLayers().length > 0) {
           map.flyToBounds(grupo.getBounds(), { padding: [20, 20] });
           mostrarEtiquetas(grupo);
+          enfocarTerritorio(grupo); // << efecto de foco
         }
       }
     }
-
     document.getElementById("btnAreaGrande").addEventListener("click", function () {
       // Resetear el select para que no quede seleccionado ningún territorio
       document.getElementById("selectorTerritorios").value = "";
-
+      // Quitar overlay gris
+      if (overlayGris) map.removeLayer(overlayGris);
       // Hacer zoom al área grande
       if (typeof areaGrande !== "undefined" && areaGrande) {
         map.fitBounds(areaGrande.getBounds(), { padding: [1, 1] });
