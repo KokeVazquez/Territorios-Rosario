@@ -22,7 +22,7 @@
       top: 1vh;
       left: 1vw;
       z-index: 1000;
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(0, 0, 0, 0.0);
       padding: 0.5em;
       border-radius: px;
       display: flex;
@@ -30,11 +30,39 @@
       gap: 5px;
     }
 
-    select,
-    button {
-      padding: 5px;
-      font-size: 12px;
+    #selectorTerritorios {
+      padding: 1.2vh 1vw;
+      font-size: 0.8vw;
+      font-weight: bold;
+      border: none;
+      /* elimina borde blanco */
+      outline: none;
+      /* quita borde azul al hacer focus */
+      border-radius: 20px;
+      background-color: #ffffff;
+      /* color del botón */
+      color: rgb(0, 0, 0);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 34px;
+      transition: background-color 0.3s, transform 0.2s;
     }
+
+    #selectorTerritorios:hover {
+      background-color: #ffffff;
+    }
+
+    #selectorTerritorios:active {
+      transform: scale(0.96);
+      background-color: #000000;
+    }
+
 
     .leaflet-draw.leaflet-control {
       margin-top: 5vh !important;
