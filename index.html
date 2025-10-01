@@ -30,38 +30,71 @@
       gap: 5px;
     }
 
+
     #selectorTerritorios {
       padding: 1.2vh 1vw;
+      /* adaptable según pantalla */
       font-size: 0.8vw;
+      /* relativo al ancho de pantalla */
       font-weight: bold;
-      border: none;
-      /* elimina borde blanco */
+      border: 2px solid #000;
+      /* borde negro elegante */
       outline: none;
-      /* quita borde azul al hacer focus */
       border-radius: 20px;
-      background-color: #ffffff;
-      /* color del botón */
-      color: rgb(0, 0, 0);
+      /* píldora redondeada */
+      background-color: #fff;
+      /* blanco */
+      color: #000;
+      /* texto negro */
       cursor: pointer;
+      /* quita estilos nativos del select */
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
-      background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      /* flecha personalizada negra */
+      background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
       background-repeat: no-repeat;
-      background-position: right 12px center;
+      background-position: right 1vw center;
       background-size: 16px;
-      padding-right: 34px;
-      transition: background-color 0.3s, transform 0.2s;
+      padding-right: 3vw;
+      /* espacio para la flecha */
+      /* animación suave */
+      transition: all 0.25s ease-in-out;
     }
 
+    /* efecto hover */
     #selectorTerritorios:hover {
       background-color: #ffffff;
+      /* fondo negro */
+      color: #000000;
+      /* texto blanco */
+      border-color: #444;
+      /* borde gris oscuro */
+      transform: scale(1.03);
+      /* ligero “pop” */
     }
 
+    /* efecto click/tap */
     #selectorTerritorios:active {
-      transform: scale(0.96);
-      background-color: #000000;
+      transform: scale(0.97);
+      /* encoge un poco al presionar */
+      background-color: #222;
+      /* fondo negro más suave */
+      color: #fff;
+      border-color: #111;
     }
+
+    /* adaptación a pantallas pequeñas */
+    @media (max-width: 480px) {
+      #selectorTerritorios {
+        font-size: 3vw;
+        padding: 1.5vh 2vw;
+        background-position: right 3vw center;
+        padding-right: 6vw;
+      }
+    }
+
+
 
 
     .leaflet-draw.leaflet-control {
