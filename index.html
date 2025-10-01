@@ -11,7 +11,10 @@
 
   <style>
     #map {
-      height: 950px;
+      height: 100vh;
+      /* ocupa todo el alto visible */
+      width: 100vw;
+      /* ocupa todo el ancho */
     }
 
     .menu {
@@ -103,7 +106,7 @@
 
 <body>
   <div class="menu">
-    <select id="selectorTerritorios" onchange="cambiarTerritorio(); this.blur();">
+    <select id="selectorTerritorios" onchange="cambiarTerritorio(); setTimeout(() => this.blur(), 200);">
       <option value="">-- Selecciona un territorio --</option>
       <option value="areaGrande">Área Grande</option>
       <option value="territorio1">Territorio 1</option>
