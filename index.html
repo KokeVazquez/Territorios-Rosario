@@ -369,7 +369,10 @@
 
       // Ajustar zoom y mostrar etiquetas
       if (valor === "areaGrande") {
-        if (typeof areaGrande !== "undefined" && areaGrande) map.fitBounds(areaGrande.getBounds());
+        if (typeof areaGrande !== "undefined" && areaGrande) {
+          // Ajusta el zoom automáticamente con padding y animación
+          map.flyToBounds(areaGrande.getBounds(), { padding: [20, 20] });
+        }
       } else {
         // Para territorios 1 a 84
         const match = valor.match(/^territorio(\d+)$/);
