@@ -1,5 +1,5 @@
 
-
+/*
 
 
 var drawnItems = new L.FeatureGroup();
@@ -56,4 +56,4 @@ poligonos.push(poligono);`);
 
 
 
-
+*/
