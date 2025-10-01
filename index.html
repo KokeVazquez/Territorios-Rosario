@@ -379,11 +379,7 @@
       if (overlayGris) map.removeLayer(overlayGris);
       // Hacer zoom al área grande
       if (typeof areaGrande !== "undefined" && areaGrande) {
-        map.fitBounds(areaGrande.getBounds(), {
-          padding: [20, 20],
-          maxZoom: 15,
-          animate: true
-        });
+        map.setView(areaGrande.getBounds().getCenter(), 16);
       }
 
       // Borrar etiquetas de territorios anteriores
