@@ -58,7 +58,7 @@ var datosTerritorio9 = {
             color: "rgba(35, 168, 14, 1)",
             fillOpacity: 0.8,
             weight: 2,
-            label: "Territorio 3",
+            label: "3",
             link: "https://maps.app.goo.gl/5V1KRbTZw3YqesXW9"
         },
         {
