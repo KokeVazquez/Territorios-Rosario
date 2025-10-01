@@ -60,6 +60,10 @@
       /* espacio para la flecha */
       /* animación suave */
       transition: all 0.25s ease-in-out;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
     }
 
     /* efecto hover */
@@ -127,6 +131,11 @@
       border-radius: 6px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
       font-size: 14px;
+      /* Evita selección de texto en iOS y otros navegadores */
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
     }
 
     .menu-contextual button {
@@ -283,8 +292,22 @@
   <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 
   <script>
-    var map = L.map("map", { maxZoom: 22, zoomControl: false }).setView([28.608, -106.0680], 15);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 22 }).addTo(map);
+    var map = L.map("map", { maxZoom: 22, zoomControl: false });
+
+    // Definir los límites que abarcan tu zona inicial
+    var boundsIniciales = L.latLngBounds([
+      [28.600, -106.075],  // esquina suroeste
+      [28.618, -106.070]   // esquina noreste
+    ]);
+
+    // Ajusta el mapa a esos límites automáticamente según la pantalla
+    map.fitBounds(boundsIniciales, { padding: [20, 20] });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap",
+      maxZoom: 22
+    }).addTo(map);
+
 
     var etiquetasActivas = [];
 
