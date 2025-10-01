@@ -298,6 +298,9 @@
   <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 
   <script>
+
+
+
     var map = L.map("map", { maxZoom: 22, zoomControl: false });
 
     var boundsIniciales = L.latLngBounds([
@@ -320,16 +323,18 @@
     function verNotas(id) { /* tu lógica existente */ }
     function mostrarMenu(e, id, lat, lng) { /* tu lógica existente */ }
     function ocultarMenu() { document.getElementById("menuContextual").style.display = "none"; }
-    function mostrarLoader() {
-      document.getElementById("loader").style.display = "flex";
-    }
-    function ocultarLoader() {
-      document.getElementById("loader").style.display = "none";
-    }
+    function mostrarLoader() { document.getElementById("loader").style.display = "flex"; }
+    function ocultarLoader() { document.getElementById("loader").style.display = "none"; }
 
-    // Mostrar loader cuando empiece el zoom
-    map.on("movestart", mostrarLoader);
-    map.on("moveend", ocultarLoader);
+    // Función para hacer flyToBounds con loader
+    function flyWithLoader(bounds, callback) {
+      mostrarLoader();
+      map.flyToBounds(bounds, { padding: [20, 20] });
+      map.once('moveend', function () {
+        ocultarLoader();
+        if (callback) callback();
+      });
+    }
 
     function enfocarTerritorio(territorio) {
       // Quitar overlay previo
@@ -360,7 +365,6 @@
         stroke: false,
         interactive: false
       }).addTo(map);
-
 
       // Tomar los polígonos del territorio seleccionado
       var territoriosCoords = grupo.getLayers().map(pol => pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
@@ -404,6 +408,7 @@
       });
     }
 
+    // Cambiar territorio desde select con loader
     function cambiarTerritorio() {
       var selector = document.getElementById("selectorTerritorios");
       var valor = selector.value;
@@ -420,27 +425,30 @@
         const num = match[1];
         const grupo = window[`territorio${num}`];
         if (typeof grupo !== "undefined" && grupo && grupo.getLayers().length > 0) {
-          map.flyToBounds(grupo.getBounds(), { padding: [20, 20] });
-          mostrarEtiquetas(grupo);
-          enfocarTerritorio(grupo); // << efecto de foco
+          flyWithLoader(grupo.getBounds(), function () {
+            mostrarEtiquetas(grupo);
+            enfocarTerritorio(grupo);
+          });
         }
       }
     }
+
+    // Área Grande con loader
     document.getElementById("btnAreaGrande").addEventListener("click", function () {
       // Resetear el select para que no quede seleccionado ningún territorio
       document.getElementById("selectorTerritorios").value = "";
       // Quitar overlay gris
       if (overlayGris) map.removeLayer(overlayGris);
-      // Hacer zoom al área grande
-      if (typeof areaGrande !== "undefined" && areaGrande) {
-        map.setView(areaGrande.getBounds().getCenter(), 15);
-      }
-
       // Borrar etiquetas de territorios anteriores
       etiquetasActivas.forEach(m => map.removeLayer(m));
       etiquetasActivas = [];
-    });
 
+      if (typeof areaGrande !== "undefined" && areaGrande) {
+        flyWithLoader(areaGrande.getBounds(), function () {
+          map.setView(areaGrande.getBounds().getCenter(), 15);
+        });
+      }
+    });
 
     function registrarMarcadorFijo(marker) {
       if (!window.marcadoresIniciales.includes(marker)) {
@@ -448,6 +456,18 @@
         window.marcadoresIniciales.push(marker);
       }
     }
+
+
+
+
+
+
+
+
+
+
+
+
   </script>
 
   <!-- Archivos externos de territorios -->
