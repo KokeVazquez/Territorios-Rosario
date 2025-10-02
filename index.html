@@ -328,54 +328,87 @@
 
 
   <script>
+    // ================================
+    // === Inicialización del mapa ===
+    // ================================
     var map = L.map("map", { maxZoom: 22, zoomControl: false });
-
-    var boundsIniciales = L.latLngBounds([
-      [28.600, -106.075],
-      [28.618, -106.070]
-    ]);
+    var boundsIniciales = L.latLngBounds([[28.600, -106.075], [28.618, -106.070]]);
     var overlayGris;
 
     map.fitBounds(boundsIniciales, { padding: [5, 5] });
-
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap",
       maxZoom: 22
     }).addTo(map);
 
-    // Territorio activo
+    // ================================
+    // === Variables globales ===
+    // ================================
     let territorioActivo = null;
-
-    // Todos los territorios
     window.todosLosTerritorios = [];
     var etiquetasActivas = [];
     window.marcadoresIniciales = [];
 
-    // Ocultar menú
+    // ================================
+    // === Notas / Capitanes ===
+    // ================================
+    function anadirNota(pol) {
+      let territorioId = pol._territorioId || "territorio";
+      let notasGuardadas = JSON.parse(localStorage.getItem(territorioId + "_notas") || "{}");
+      let nuevaNota = prompt("Escribe el nombre del capitán o nota:", notasGuardadas[pol._id] || "");
+      if (nuevaNota !== null) {
+        notasGuardadas[pol._id] = nuevaNota;
+        localStorage.setItem(territorioId + "_notas", JSON.stringify(notasGuardadas));
+      }
+    }
+
+    function mostrarNota(pol) {
+      let territorioId = pol._territorioId || "territorio";
+      let notasGuardadas = JSON.parse(localStorage.getItem(territorioId + "_notas") || "{}");
+      let nota = notasGuardadas[pol._id];
+      alert(nota ? "Capitán/nota: " + nota : "No hay información registrada.");
+    }
+
+    // ================================
+    // === Menú contextual ===
+    // ================================
     function ocultarMenu() {
       const menu = document.getElementById("menuContextual");
       if (menu) menu.style.display = "none";
     }
 
-    // Mostrar menú
-    function mostrarMenu(e, pol) {
+    function mostrarMenu(e, pol, notasPoligonos, territorioId) {
       ocultarMenu();
       const menu = document.getElementById("menuContextual");
       if (!menu) return;
 
-      menu.style.display = "block";
-      menu.style.left = e.originalEvent.pageX + "px";
-      menu.style.top = e.originalEvent.pageY + "px";
+      var x = e.originalEvent.clientX || (e.originalEvent.touches && e.originalEvent.touches[0].clientX);
+      var y = e.originalEvent.clientY || (e.originalEvent.touches && e.originalEvent.touches[0].clientY);
 
-      // Aquí tu lógica de menú
+      menu.style.left = x + "px";
+      menu.style.top = y + "px";
+      menu.style.display = "block";
+
+      menu.innerHTML = `
+      <button onclick="window.open('${pol._link}', '_blank'); ocultarMenu();">📍 Ubicación</button>
+      <button onclick="anadirNotaPopup('${pol._id}', '${territorioId}');">➕ Añadir nota</button>
+      <button onclick="verNotas('${pol._id}', '${territorioId}');">📒 Notas</button>
+      <button onclick="mostrarCapitanes('${territorioId}');">🧭 Capitanes</button>
+    `;
     }
 
-    // Listener global para cerrar menú
     map.on("click", ocultarMenu);
 
-    // Loader
-    function mostrarLoader() { document.getElementById("loader").style.display = "flex"; }
-    function ocultarLoader() { document.getElementById("loader").style.display = "none"; }
+    // ================================
+    // === Loader ===
+    // ================================
+    function mostrarLoader() {
+      document.getElementById("loader").style.display = "flex";
+    }
+
+    function ocultarLoader() {
+      document.getElementById("loader").style.display = "none";
+    }
 
     function flyWithLoader(bounds, callback) {
       mostrarLoader();
@@ -386,7 +419,9 @@
       });
     }
 
-    // Función para enfocar territorio y limitar interacción
+    // ================================
+    // === Enfocar un territorio ===
+    // ================================
     function enfocarTerritorio(grupo) {
       territorioActivo = grupo;
 
@@ -395,56 +430,43 @@
         t.eachLayer(pol => {
           pol.off('click');
           pol.off('contextmenu');
+          pol.setStyle(pol._originalStyle);
         });
       });
 
-      // Activar interacción solo en territorio activo
+      // Activar interacción solo en el territorio activo
       territorioActivo.eachLayer(pol => {
-        // Inicializar estilo original y seleccionado si no existe
-        if (!pol._originalStyle) pol._originalStyle = { color: pol.options.color, fillColor: pol.options.fillColor || pol.options.color, fillOpacity: pol.options.fillOpacity, weight: pol.options.weight };
-        if (pol._selected === undefined) pol._selected = false;
+        pol._territorioId = grupo._id || "territorio";
+        // Restaurar estilo según estado guardado
+        pol.setStyle(pol._selected ? { color: "gray", fillColor: "gray", fillOpacity: 0.9 } : pol._originalStyle);
 
-        pol.on('click', function (e) {
-          // Alternar seleccionado
+        // Registrar eventos
+        pol.off('click');
+        pol.off('contextmenu');
+
+        pol.on('click', function () {
           pol._selected = !pol._selected;
+          pol.setStyle(pol._selected ? { color: "gray", fillColor: "gray", fillOpacity: 0.9 } : pol._originalStyle);
 
-          // Cambiar color
-          if (pol._selected) {
-            pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
-          } else {
-            pol.setStyle(pol._originalStyle);
-          }
-
-          // Guardar estado
-          const territorioId = pol._territorioId || "territorio"; // Ajusta según tu ID real
-          var estadoGuardado = JSON.parse(localStorage.getItem(territorioId + "_estado") || "{}");
+          const estadoGuardado = JSON.parse(localStorage.getItem(pol._territorioId + "_estado") || "{}");
           estadoGuardado[pol._id] = pol._selected;
-          localStorage.setItem(territorioId + "_estado", JSON.stringify(estadoGuardado));
+          localStorage.setItem(pol._territorioId + "_estado", JSON.stringify(estadoGuardado));
 
-          // Llamar a popup de nota si se selecciona
-          if (pol._selected) anadirNota(pol);
+          if (pol._selected) abrirPopupTrabajado(pol._id, {}, pol._territorioId);
         });
 
         pol.on('contextmenu', function (e) {
-          mostrarMenu(e, pol);
+          mostrarMenu(e, pol, pol._notasPoligonos || {}, pol._territorioId);
         });
       });
 
-      // Overlay gris
+      // Overlay gris sobre todo el mapa excepto el activo
       if (overlayGris) map.removeLayer(overlayGris);
-      var mundo = [
-        [90, -180],
-        [90, 180],
-        [-90, 180],
-        [-90, -180],
-        [90, -180]
-      ];
-
+      var mundo = [[90, -180], [90, 180], [-90, 180], [-90, -180], [90, -180]];
       var huecos = [];
       territorioActivo.eachLayer(pol => {
         if (pol.getLatLngs) huecos.push(pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
       });
-
       overlayGris = L.polygon([mundo, ...huecos], {
         color: "#000",
         fillColor: "#000",
@@ -456,13 +478,13 @@
       mostrarEtiquetas();
     }
 
-    // Mostrar etiquetas solo del territorio activo
+    // ================================
+    // === Etiquetas ===
+    // ================================
     function mostrarEtiquetas() {
       etiquetasActivas.forEach(m => map.removeLayer(m));
       etiquetasActivas = [];
-
       if (!territorioActivo) return;
-
       territorioActivo.eachLayer(function (pol) {
         if (pol._label) {
           let latlngs = pol.getLatLngs()[0];
@@ -471,37 +493,39 @@
           let centroide = turf.centroid(turf.polygon([coords]));
           let cLat = centroide.geometry.coordinates[1];
           let cLng = centroide.geometry.coordinates[0];
-
           let marker = L.marker([cLat, cLng], {
             interactive: false,
-            icon: L.divIcon({
-              className: "etiqueta-poligono",
-              html: pol._label,
-              iconSize: null,
-              iconAnchor: [0, 0]
-            })
+            icon: L.divIcon({ className: "etiqueta-poligono", html: pol._label, iconSize: null, iconAnchor: [0, 0] })
           }).addTo(map);
-
           etiquetasActivas.push(marker);
         }
       });
     }
 
-    // Cambiar territorio desde select con loader
+    // ================================
+    // === Cambiar territorio desde select ===
+    // ================================
     function cambiarTerritorio() {
+      map.closePopup(); // Cerrar cualquier popup
       var selector = document.getElementById("selectorTerritorios");
       var valor = selector.value;
       selector.blur();
-
       ocultarMenu();
       etiquetasActivas.forEach(m => map.removeLayer(m));
       etiquetasActivas = [];
       if (overlayGris) map.removeLayer(overlayGris);
 
+      if (valor === "areaGrande") {
+        selector.value = "";
+        territorioActivo = null;
+        flyWithLoader(boundsIniciales);
+        return;
+      }
+
       const match = valor.match(/^territorio(\d+)$/);
       if (match) {
         const num = match[1];
-        const grupo = window[`territorio${num}`];
+        const grupo = window["territorio" + num];
         if (grupo && grupo.getLayers().length > 0) {
           flyWithLoader(grupo.getBounds(), function () {
             enfocarTerritorio(grupo);
@@ -510,14 +534,89 @@
       }
     }
 
-    // Registrar marcadores fijos
+
+    // ================================
+    // === Botón Área Grande ===
+    // ================================
+    document.getElementById("btnAreaGrande").addEventListener("click", function () {
+      map.closePopup(); // Cerrar cualquier popup abierto
+      document.getElementById("selectorTerritorios").value = "";
+      ocultarMenu();
+      if (overlayGris) map.removeLayer(overlayGris);
+      territorioActivo = null;
+      etiquetasActivas.forEach(m => map.removeLayer(m));
+      etiquetasActivas = [];
+      flyWithLoader(boundsIniciales);
+    });
+
+
+    // ================================
+    // === Registrar marcadores fijos ===
+    // ================================
     function registrarMarcadorFijo(marker) {
       if (!window.marcadoresIniciales.includes(marker)) {
         marker.addTo(map);
         window.marcadoresIniciales.push(marker);
       }
     }
+
+    // ================================
+    // === Capitanes ===
+    // ================================
+    function abrirPopupTrabajado(id, notasPoligonos, territorioId) {
+      ocultarMenu();
+      var contenido = document.createElement("div");
+      contenido.innerHTML = `<b>Trabajado:</b><br> 
+      Nombre: <input type="text" id="nombreTrabajado" placeholder="Nombre"><br>
+      Fecha: <input type="date" id="fechaTrabajado" value="${new Date().toISOString().slice(0, 10)}"><br>
+      <button id="guardarTrabajado">💾 Guardar</button>
+      <button onclick="map.closePopup()">❌ Cancelar</button>`;
+      var popup = L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
+
+      contenido.querySelector("#guardarTrabajado").onclick = function () {
+        var nombre = contenido.querySelector("#nombreTrabajado").value.trim();
+        var fecha = contenido.querySelector("#fechaTrabajado").value;
+        if (!nombre || !fecha) return;
+
+        var capitanes = JSON.parse(localStorage.getItem(territorioId + "_capitanes") || "{}");
+        capitanes[id] = [`Trabajado por: ${nombre} | Fecha: ${fecha}`];
+        localStorage.setItem(territorioId + "_capitanes", JSON.stringify(capitanes));
+        map.closePopup();
+      };
+    }
+
+    function mostrarCapitanes(territorioId) {
+      ocultarMenu();
+      var capitanes = JSON.parse(localStorage.getItem(territorioId + "_capitanes") || "{}");
+      var contenido = `<b>${territorioId}:</b><br><br>`;
+      Object.keys(capitanes).forEach(polId => {
+        capitanes[polId].forEach(nota => {
+          var partes = nota.replace("Trabajado por: ", "").split("| Fecha:");
+          var nombre = partes[0].trim();
+          var fecha = partes[1].trim();
+          var fechaObj = new Date(fecha);
+          var fechaFormateada =
+            ("0" + fechaObj.getDate()).slice(-2) + "/" +
+            ("0" + (fechaObj.getMonth() + 1)).slice(-2) + "/" +
+            fechaObj.getFullYear();
+          contenido += `<b>${polId}</b> - <span style="color:red;">${nombre}</span> - <b>Fecha:</b> <span style="color:red;">${fechaFormateada}</span>
+        <button onclick="confirmarEliminarCapitan('${polId}', '${territorioId}')">❌</button><br><br>`;
+        });
+      });
+      if (contenido === `<b>${territorioId}:</b><br><br>`) contenido += "No hay registros de capitanes aún.";
+      L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
+    }
+
+    function confirmarEliminarCapitan(polId, territorioId) {
+      if (confirm("¿Deseas eliminar este registro?")) {
+        var capitanes = JSON.parse(localStorage.getItem(territorioId + "_capitanes") || "{}");
+        delete capitanes[polId];
+        localStorage.setItem(territorioId + "_capitanes", JSON.stringify(capitanes));
+        mostrarCapitanes(territorioId);
+      }
+    }
   </script>
+
 
 
 

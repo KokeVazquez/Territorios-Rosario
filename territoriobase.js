@@ -19,10 +19,16 @@ function crearTerritorio(datosTerritorio) {
   // 3. Crear polígonos
   // ------------------------------
   datosTerritorio.poligonos.forEach(function (d) {
-    var pol = L.polygon(d.coords, { color: d.color, fillOpacity: d.fillOpacity, weight: d.weight }).addTo(grupo);
+    var pol = L.polygon(d.coords, {
+      color: d.color,
+      fillOpacity: d.fillOpacity,
+      weight: d.weight
+    }).addTo(grupo);
+
     pol._id = d.id;
     pol._link = d.link;
 
+    // Guardamos estilo original
     pol._originalStyle = {
       color: pol.options.color,
       fillColor: pol.options.fillColor || pol.options.color,
@@ -30,28 +36,34 @@ function crearTerritorio(datosTerritorio) {
       weight: pol.options.weight
     };
 
+    // Estado guardado
     pol._selected = estadoGuardado[pol._id] || false;
-    if (pol._selected) pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
+    if (pol._selected) {
+      pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
+    }
 
+    // Etiqueta
     if (d.label) pol._label = d.label;
 
-    // **No registramos eventos aquí**, se harán solo al enfocar
-    // pol.on("click", ...)
-    // pol.on("contextmenu", ...)
+    // 🚫 No registramos eventos aquí
+    // (solo al enfocar territorio activo)
   });
 
   return { grupo: grupo, notasPoligonos: notasPoligonos };
 }
 
 // =============================
-// === Funciones reutilizables ===
+// === Menú contextual ===
 // =============================
 
 function mostrarMenu(e, pol, notasPoligonos, territorioId) {
   ocultarMenu();
   var menu = document.getElementById("menuContextual");
+  if (!menu) return;
+
   var x = e.originalEvent.clientX || (e.originalEvent.touches && e.originalEvent.touches[0].clientX);
   var y = e.originalEvent.clientY || (e.originalEvent.touches && e.originalEvent.touches[0].clientY);
+
   menu.style.left = x + "px";
   menu.style.top = y + "px";
   menu.style.display = "block";
@@ -64,11 +76,19 @@ function mostrarMenu(e, pol, notasPoligonos, territorioId) {
   `;
 }
 
-function ocultarMenu() { document.getElementById("menuContextual").style.display = "none"; }
+function ocultarMenu() {
+  const menu = document.getElementById("menuContextual");
+  if (menu) menu.style.display = "none";
+}
+
+// =============================
+// === Notas ===
+// =============================
 
 function anadirNotaPopup(id, territorioId) {
   ocultarMenu();
   var notasPoligonos = JSON.parse(localStorage.getItem(territorioId + "_notas") || "{}");
+
   var contenido = document.createElement("div");
   contenido.innerHTML = `
     <b>Añadir nota:</b><br>
@@ -76,7 +96,8 @@ function anadirNotaPopup(id, territorioId) {
     <button id="guardarNota">💾 Guardar</button>
     <button onclick="map.closePopup()">❌ Cancelar</button>
   `;
-  var popup = L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
+
+  L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
 
   contenido.querySelector("#guardarNota").onclick = function () {
     var texto = contenido.querySelector("#inputNota").value.trim();
@@ -101,7 +122,10 @@ function mostrarNotasPopup(id, notasPoligonos, territorioId) {
 
   var contenido = "<b>Notas:</b><br><br>";
   if (notas.length === 0) contenido += "No hay notas aún.";
-  else notas.forEach((nota, i) => contenido += `${i + 1}. ${nota} <button onclick="confirmarEliminarNotaPopup('${id}', ${i}, '${territorioId}')">❌</button><br>`);
+  else notas.forEach((nota, i) => {
+    contenido += `${i + 1}. ${nota} 
+      <button onclick="confirmarEliminarNotaPopup('${id}', ${i}, '${territorioId}')">❌</button><br>`;
+  });
 
   L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
 }
@@ -122,16 +146,23 @@ function eliminarNota(id, index, territorioId) {
   map.closePopup();
 }
 
+// =============================
+// === Capitanes (Trabajado) ===
+// =============================
+
 function abrirPopupTrabajado(id, notasPoligonos, territorioId) {
+  ocultarMenu();
+
   var contenido = document.createElement("div");
   contenido.innerHTML = `
-    <b>Trabajado:</b><br>
+    <b>Registrar Capitán:</b><br>
     Nombre: <input type="text" id="nombreTrabajado" placeholder="Nombre"><br>
     Fecha: <input type="date" id="fechaTrabajado" value="${new Date().toISOString().slice(0, 10)}"><br>
     <button id="guardarTrabajado">💾 Guardar</button>
     <button onclick="map.closePopup()">❌ Cancelar</button>
   `;
-  var popup = L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
+
+  L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
 
   contenido.querySelector("#guardarTrabajado").onclick = function () {
     var nombre = contenido.querySelector("#nombreTrabajado").value.trim();
@@ -157,9 +188,10 @@ function mostrarCapitanes(territorioId) {
       var nombre = partes[0].trim();
       var fecha = partes[1].trim();
       var fechaObj = new Date(fecha);
-      var fechaFormateada = ("0" + fechaObj.getDate()).slice(-2) + "/" +
-        ("0" + (fechaObj.getMonth() + 1)).slice(-2) +
-        "/" + fechaObj.getFullYear();
+      var fechaFormateada =
+        ("0" + fechaObj.getDate()).slice(-2) + "/" +
+        ("0" + (fechaObj.getMonth() + 1)).slice(-2) + "/" +
+        fechaObj.getFullYear();
 
       contenido += `<b>${polId}</b> - <span style="color:red;">${nombre}</span> - <b>Fecha:</b> <span style="color:red;">${fechaFormateada}</span> 
                     <button onclick="confirmarEliminarCapitan('${polId}', '${territorioId}')">❌</button><br><br>`;
@@ -191,41 +223,39 @@ function eliminarCapitan(polId, territorioId) {
 }
 
 // =============================
-// === Función para registrar eventos solo en territorio activo ===
+// === Eventos del territorio activo ===
 // =============================
 
 function registrarEventosTerritorioActivo(territorio, notasPoligonos, territorioId) {
   territorio.eachLayer(function (pol) {
-    // Quitamos cualquier evento anterior
+    // Resetear eventos
     pol.off("click");
     pol.off("contextmenu");
 
-    // Solo el territorio activo puede ser clickeado
+    // Click → seleccionar en gris + abrir popup de capitán
     pol.on("click", function () {
-      // Alternar selección
       pol._selected = !pol._selected;
 
-      // Cambiar estilo según selección
       if (pol._selected) {
         pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
+        abrirPopupTrabajado(pol._id, notasPoligonos, territorioId);
       } else {
         pol.setStyle(pol._originalStyle);
       }
 
-      // Guardar estado en localStorage
       var estadoGuardado = JSON.parse(localStorage.getItem(territorioId + "_estado") || "{}");
       estadoGuardado[pol._id] = pol._selected;
       localStorage.setItem(territorioId + "_estado", JSON.stringify(estadoGuardado));
-
-      // Abrir popup “Trabajado” solo si se selecciona
-      if (pol._selected) abrirPopupTrabajado(pol._id, notasPoligonos, territorioId);
     });
 
+    // Clic derecho → menú contextual
     pol.on("contextmenu", function (e) {
       mostrarMenu(e, pol, notasPoligonos, territorioId);
     });
   });
 }
+
+
 
 
 
