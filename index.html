@@ -116,6 +116,27 @@
     -ms-user-select: none;
   }
 
+  #selectorTerritorios,
+  #btnMostrarTodasNotas {
+    padding: 1.2vh 1vw;
+    font-size: 0.8vw;
+    font-weight: bold;
+    border: 2px solid #000;
+    outline: none;
+    border-radius: 20px;
+    background-color: #fff;
+    color: #000;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.25s ease-in-out;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
   #selectorTerritorios {
     background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
     background-repeat: no-repeat;
@@ -298,7 +319,11 @@
 
     <!-- Botón Área Grande -->
     <button id="btnAreaGrande">Área Grande</button>
+    <button id="btnMostrarTodasNotas">📝 Mostrar todas las notas</button>
+
   </div>
+
+
 
 
 
@@ -338,6 +363,7 @@
     }); var boundsIniciales = L.latLngBounds([[28.600, -106.075], [28.618, -106.070]]);
     var overlayGris;
 
+
     map.fitBounds(boundsIniciales, { padding: [5, 5] });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap",
@@ -351,6 +377,8 @@
     window.todosLosTerritorios = [];
     var etiquetasActivas = [];
     window.marcadoresIniciales = [];
+    window.indicadoresNotas = [];
+
 
     // ================================
     // === Notas / Capitanes ===
@@ -362,6 +390,8 @@
       if (nuevaNota !== null) {
         notasGuardadas[pol._id] = nuevaNota;
         localStorage.setItem(territorioId + "_notas", JSON.stringify(notasGuardadas));
+        mostrarIndicadoresNotas();
+
       }
     }
 
@@ -478,8 +508,13 @@
         interactive: false
       }).addTo(map);
 
+      // Mostrar etiquetas
       mostrarEtiquetas();
+
+      // Mostrar indicadores de notas al final
+      mostrarIndicadoresNotas();
     }
+
 
     // ================================
     // === Etiquetas ===
@@ -552,6 +587,53 @@
       flyWithLoader(boundsIniciales);
     });
 
+    // ================================
+    // === Botón Mostrar Todas Notas (Toggle) ===
+    // ================================
+    let notasMostradas = false; // estado inicial: no se muestran
+
+    document.getElementById("btnMostrarTodasNotas").addEventListener("click", function () {
+      if (!notasMostradas) {
+        // Mostrar todos los indicadores de notas
+        window.todosLosTerritorios.forEach(territorio => {
+          const estadoNotas = JSON.parse(localStorage.getItem(territorio._id + "_notas") || "{}");
+          territorio.eachLayer(function (pol) {
+            if (estadoNotas[pol._id] && estadoNotas[pol._id].length > 0) {
+              // Obtener centroide del polígono
+              const latlngs = pol.getLatLngs()[0];
+              const coords = latlngs.map(ll => [ll.lng, ll.lat]);
+              coords.push([coords[0][0], coords[0][1]]);
+              const centroide = turf.centroid(turf.polygon([coords]));
+              const cLat = centroide.geometry.coordinates[1];
+              const cLng = centroide.geometry.coordinates[0];
+
+              // Crear marcador indicador
+              const marker = L.marker([cLat, cLng], {
+                interactive: false,
+                icon: L.divIcon({
+                  className: "indicador-nota",
+                  html: "📒",
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10]
+                })
+              }).addTo(map);
+
+              window.indicadoresNotas.push(marker);
+            }
+          });
+        });
+
+        notasMostradas = true; // actualizar estado
+      } else {
+        // Ocultar todos los indicadores
+        window.indicadoresNotas.forEach(m => map.removeLayer(m));
+        window.indicadoresNotas = [];
+        notasMostradas = false; // actualizar estado
+      }
+    });
+
+
+
 
     // ================================
     // === Registrar marcadores fijos ===
@@ -618,6 +700,80 @@
         mostrarCapitanes(territorioId);
       }
     }
+
+    // ================================
+    // === Mostrar indicador de nota ===
+    // ================================
+    function mostrarIndicadoresNotas() {
+      window.indicadoresNotas.forEach(m => map.removeLayer(m));
+      window.indicadoresNotas = [];
+
+      if (!territorioActivo) return;
+
+      const estadoNotas = JSON.parse(localStorage.getItem(territorioActivo._id + "_notas") || "{}");
+
+      territorioActivo.eachLayer(function (pol) {
+        if (estadoNotas[pol._id] && estadoNotas[pol._id].length > 0) {
+          // Obtener centroide del polígono
+          const latlngs = pol.getLatLngs()[0];
+          const coords = latlngs.map(ll => [ll.lng, ll.lat]);
+          coords.push([coords[0][0], coords[0][1]]);
+          const centroide = turf.centroid(turf.polygon([coords]));
+          const cLat = centroide.geometry.coordinates[1];
+          const cLng = centroide.geometry.coordinates[0];
+
+          // Crear marcador indicador
+          const marker = L.marker([cLat, cLng], {
+            interactive: false,
+            icon: L.divIcon({
+              className: "indicador-nota",
+              html: "📒",
+              iconSize: [20, 20],
+              iconAnchor: [10, 10]
+            })
+          }).addTo(map);
+
+          window.indicadoresNotas.push(marker);
+        }
+      });
+    }
+
+    // ================================
+    // === Inicializar todos los territorios automáticamente ===
+    // ================================
+
+    // Lista de todos los objetos de datos de territorios
+    const listaTerritorios = [
+      datosTerritorio1, datosTerritorio2, datosTerritorio3, /* ... */ datosTerritorio84
+    ];
+
+    // Array global para manejar todos los territorios
+    window.todosLosTerritorios = [];
+
+    listaTerritorios.forEach(datosTerritorio => {
+      // Crear territorio con la función base
+      const territorioData = crearTerritorio(datosTerritorio);
+      const grupo = territorioData.grupo;
+
+      // Guardar en array global
+      window.todosLosTerritorios.push(grupo);
+
+      // Crear marcador principal (número) usando el segundo polígono como referencia
+      const polFijo = datosTerritorio.poligonos[1] || datosTerritorio.poligonos[0];
+      const centro = L.polygon(polFijo.coords).getBounds().getCenter();
+
+      const marcador = L.marker(centro, {
+        icon: L.divIcon({
+          className: "etiquetaTerritorio",
+          html: `<b>${datosTerritorio.numeroTerritorio}</b>`,
+          iconSize: [20, 20]
+        })
+      }).addTo(map);
+
+      // Guardar referencia del marcador dentro del grupo
+      grupo._marcadorTerritorio = marcador;
+    });
+
   </script>
 
 

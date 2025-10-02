@@ -26,6 +26,7 @@ function crearTerritorio(datosTerritorio) {
     }).addTo(grupo);
 
     pol._id = d.id;
+    pol._territorioId = datosTerritorio.id; // <-- esto es lo nuevo
     pol._link = d.link;
 
     // Guardamos estilo original
@@ -44,10 +45,13 @@ function crearTerritorio(datosTerritorio) {
 
     // Etiqueta
     if (d.label) pol._label = d.label;
-
-    // 🚫 No registramos eventos aquí
-    // (solo al enfocar territorio activo)
   });
+
+  // ------------------------------
+  // 4. Agregar a la lista global
+  // ------------------------------
+  window.todosLosTerritorios = window.todosLosTerritorios || [];
+  window.todosLosTerritorios.push(grupo);
 
   return { grupo: grupo, notasPoligonos: notasPoligonos };
 }
