@@ -331,8 +331,11 @@
     // ================================
     // === Inicialización del mapa ===
     // ================================
-    var map = L.map("map", { maxZoom: 22, zoomControl: false });
-    var boundsIniciales = L.latLngBounds([[28.600, -106.075], [28.618, -106.070]]);
+    var map = L.map("map", {
+      maxZoom: 22,
+      zoomControl: false,
+      doubleClickZoom: false
+    }); var boundsIniciales = L.latLngBounds([[28.600, -106.075], [28.618, -106.070]]);
     var overlayGris;
 
     map.fitBounds(boundsIniciales, { padding: [5, 5] });
