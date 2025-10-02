@@ -325,6 +325,8 @@
   <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
   <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 
+
+
   <script>
     var map = L.map("map", { maxZoom: 22, zoomControl: false });
 
@@ -341,27 +343,23 @@
       maxZoom: 22
     }).addTo(map);
 
-    // Territorio que está enfocado actualmente
+    // Territorio activo
     let territorioActivo = null;
 
-    // Arreglo con todos los territorios
+    // Todos los territorios
     window.todosLosTerritorios = [];
     var etiquetasActivas = [];
     window.marcadoresIniciales = [];
 
-    function anadirNota(pol) { /* tu lógica existente aquí */ }
-    function verNotas(pol) { /* tu lógica existente aquí */ }
-
-    // Función para ocultar el menú
+    // Ocultar menú
     function ocultarMenu() {
       const menu = document.getElementById("menuContextual");
       if (menu) menu.style.display = "none";
     }
 
-    // Función para mostrar el menú contextual
+    // Mostrar menú
     function mostrarMenu(e, pol) {
       ocultarMenu();
-
       const menu = document.getElementById("menuContextual");
       if (!menu) return;
 
@@ -369,32 +367,16 @@
       menu.style.left = e.originalEvent.pageX + "px";
       menu.style.top = e.originalEvent.pageY + "px";
 
-      // Aquí tu lógica existente para rellenar el menú según el pol
+      // Aquí tu lógica de menú
     }
 
-    // Listener global en el mapa para cerrar el menú si se hace clic en cualquier parte
+    // Listener global para cerrar menú
     map.on("click", ocultarMenu);
-
-    // Si tienes botones como "Área Grande", también ocultamos el menú
-    document.getElementById("btnAreaGrande").addEventListener("click", function () {
-      ocultarMenu();
-      document.getElementById("selectorTerritorios").value = "";
-      if (overlayGris) map.removeLayer(overlayGris);
-      etiquetasActivas.forEach(m => map.removeLayer(m));
-      etiquetasActivas = [];
-
-      if (typeof areaGrande !== "undefined" && areaGrande) {
-        flyWithLoader(areaGrande.getBounds(), function () {
-          map.setView(areaGrande.getBounds().getCenter(), 15);
-        });
-      }
-    });
 
     // Loader
     function mostrarLoader() { document.getElementById("loader").style.display = "flex"; }
     function ocultarLoader() { document.getElementById("loader").style.display = "none"; }
 
-    // Función para flyToBounds con loader
     function flyWithLoader(bounds, callback) {
       mostrarLoader();
       map.flyToBounds(bounds, { padding: [20, 20] });
@@ -404,11 +386,11 @@
       });
     }
 
-    // Función para enfocar un territorio y limitar interacción
+    // Función para enfocar territorio y limitar interacción
     function enfocarTerritorio(grupo) {
       territorioActivo = grupo;
 
-      // Deshabilitar interacción en todos los territorios
+      // Desactivar interacción de todos los territorios
       window.todosLosTerritorios.forEach(t => {
         t.eachLayer(pol => {
           pol.off('click');
@@ -418,10 +400,31 @@
 
       // Activar interacción solo en territorio activo
       territorioActivo.eachLayer(pol => {
+        // Inicializar estilo original y seleccionado si no existe
+        if (!pol._originalStyle) pol._originalStyle = { color: pol.options.color, fillColor: pol.options.fillColor || pol.options.color, fillOpacity: pol.options.fillOpacity, weight: pol.options.weight };
+        if (pol._selected === undefined) pol._selected = false;
+
         pol.on('click', function (e) {
-          mostrarMenu(e, pol);
-          anadirNota(pol);
+          // Alternar seleccionado
+          pol._selected = !pol._selected;
+
+          // Cambiar color
+          if (pol._selected) {
+            pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
+          } else {
+            pol.setStyle(pol._originalStyle);
+          }
+
+          // Guardar estado
+          const territorioId = pol._territorioId || "territorio"; // Ajusta según tu ID real
+          var estadoGuardado = JSON.parse(localStorage.getItem(territorioId + "_estado") || "{}");
+          estadoGuardado[pol._id] = pol._selected;
+          localStorage.setItem(territorioId + "_estado", JSON.stringify(estadoGuardado));
+
+          // Llamar a popup de nota si se selecciona
+          if (pol._selected) anadirNota(pol);
         });
+
         pol.on('contextmenu', function (e) {
           mostrarMenu(e, pol);
         });
@@ -429,7 +432,6 @@
 
       // Overlay gris
       if (overlayGris) map.removeLayer(overlayGris);
-
       var mundo = [
         [90, -180],
         [90, 180],
@@ -440,9 +442,7 @@
 
       var huecos = [];
       territorioActivo.eachLayer(pol => {
-        if (pol.getLatLngs) {
-          huecos.push(pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
-        }
+        if (pol.getLatLngs) huecos.push(pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
       });
 
       overlayGris = L.polygon([mundo, ...huecos], {
@@ -502,7 +502,7 @@
       if (match) {
         const num = match[1];
         const grupo = window[`territorio${num}`];
-        if (typeof grupo !== "undefined" && grupo && grupo.getLayers().length > 0) {
+        if (grupo && grupo.getLayers().length > 0) {
           flyWithLoader(grupo.getBounds(), function () {
             enfocarTerritorio(grupo);
           });
@@ -517,8 +517,8 @@
         window.marcadoresIniciales.push(marker);
       }
     }
-
   </script>
+
 
 
 
