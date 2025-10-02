@@ -1,5 +1,8 @@
 
 
+
+/*
+
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
 
@@ -52,5 +55,5 @@ poligonos.push(poligono);`);
 
 
 
-
+*/
 
