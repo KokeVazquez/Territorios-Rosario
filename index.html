@@ -326,9 +326,6 @@
   <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 
   <script>
-
-
-
     var map = L.map("map", { maxZoom: 22, zoomControl: false });
 
     var boundsIniciales = L.latLngBounds([
@@ -344,17 +341,60 @@
       maxZoom: 22
     }).addTo(map);
 
+    // Territorio que está enfocado actualmente
+    let territorioActivo = null;
+
+    // Arreglo con todos los territorios
+    window.todosLosTerritorios = [];
     var etiquetasActivas = [];
     window.marcadoresIniciales = [];
 
-    function anadirNota(id) { /* tu lógica existente */ }
-    function verNotas(id) { /* tu lógica existente */ }
-    function mostrarMenu(e, id, lat, lng) { /* tu lógica existente */ }
-    function ocultarMenu() { document.getElementById("menuContextual").style.display = "none"; }
+    function anadirNota(pol) { /* tu lógica existente aquí */ }
+    function verNotas(pol) { /* tu lógica existente aquí */ }
+
+    // Función para ocultar el menú
+    function ocultarMenu() {
+      const menu = document.getElementById("menuContextual");
+      if (menu) menu.style.display = "none";
+    }
+
+    // Función para mostrar el menú contextual
+    function mostrarMenu(e, pol) {
+      ocultarMenu();
+
+      const menu = document.getElementById("menuContextual");
+      if (!menu) return;
+
+      menu.style.display = "block";
+      menu.style.left = e.originalEvent.pageX + "px";
+      menu.style.top = e.originalEvent.pageY + "px";
+
+      // Aquí tu lógica existente para rellenar el menú según el pol
+    }
+
+    // Listener global en el mapa para cerrar el menú si se hace clic en cualquier parte
+    map.on("click", ocultarMenu);
+
+    // Si tienes botones como "Área Grande", también ocultamos el menú
+    document.getElementById("btnAreaGrande").addEventListener("click", function () {
+      ocultarMenu();
+      document.getElementById("selectorTerritorios").value = "";
+      if (overlayGris) map.removeLayer(overlayGris);
+      etiquetasActivas.forEach(m => map.removeLayer(m));
+      etiquetasActivas = [];
+
+      if (typeof areaGrande !== "undefined" && areaGrande) {
+        flyWithLoader(areaGrande.getBounds(), function () {
+          map.setView(areaGrande.getBounds().getCenter(), 15);
+        });
+      }
+    });
+
+    // Loader
     function mostrarLoader() { document.getElementById("loader").style.display = "flex"; }
     function ocultarLoader() { document.getElementById("loader").style.display = "none"; }
 
-    // Función para hacer flyToBounds con loader
+    // Función para flyToBounds con loader
     function flyWithLoader(bounds, callback) {
       mostrarLoader();
       map.flyToBounds(bounds, { padding: [20, 20] });
@@ -364,11 +404,32 @@
       });
     }
 
-    function enfocarTerritorio(territorio) {
-      // Quitar overlay previo
+    // Función para enfocar un territorio y limitar interacción
+    function enfocarTerritorio(grupo) {
+      territorioActivo = grupo;
+
+      // Deshabilitar interacción en todos los territorios
+      window.todosLosTerritorios.forEach(t => {
+        t.eachLayer(pol => {
+          pol.off('click');
+          pol.off('contextmenu');
+        });
+      });
+
+      // Activar interacción solo en territorio activo
+      territorioActivo.eachLayer(pol => {
+        pol.on('click', function (e) {
+          mostrarMenu(e, pol);
+          anadirNota(pol);
+        });
+        pol.on('contextmenu', function (e) {
+          mostrarMenu(e, pol);
+        });
+      });
+
+      // Overlay gris
       if (overlayGris) map.removeLayer(overlayGris);
 
-      // Coordenadas del "mundo" (o área del mapa)
       var mundo = [
         [90, -180],
         [90, 180],
@@ -377,15 +438,13 @@
         [90, -180]
       ];
 
-      // Usamos los límites del territorio como "hueco"
       var huecos = [];
-      territorio.eachLayer(function (pol) {
+      territorioActivo.eachLayer(pol => {
         if (pol.getLatLngs) {
           huecos.push(pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
         }
       });
 
-      // Crear el polígono con huecos
       overlayGris = L.polygon([mundo, ...huecos], {
         color: "#000",
         fillColor: "#000",
@@ -394,39 +453,27 @@
         interactive: false
       }).addTo(map);
 
-      // Tomar los polígonos del territorio seleccionado
-      var territoriosCoords = grupo.getLayers().map(pol => pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
-
-      // Crear overlay gris con hueco
-      overlayGris = L.polygon([bounds].concat(territoriosCoords), {
-        color: "rgba(0,0,0,0)",
-        fillColor: "rgba(0,0,0,0.4)",
-        fillOpacity: 0.4,
-        weight: 0,
-        interactive: false
-      }).addTo(map);
+      mostrarEtiquetas();
     }
 
-    map.on("click", ocultarMenu);
-
-    function mostrarEtiquetas(territorio) {
-      // Primero quitamos todas las etiquetas activas
+    // Mostrar etiquetas solo del territorio activo
+    function mostrarEtiquetas() {
       etiquetasActivas.forEach(m => map.removeLayer(m));
       etiquetasActivas = [];
 
-      // Recorremos cada polígono del territorio
-      territorio.eachLayer(function (pol) {
+      if (!territorioActivo) return;
+
+      territorioActivo.eachLayer(function (pol) {
         if (pol._label) {
           let latlngs = pol.getLatLngs()[0];
           let coords = latlngs.map(ll => [ll.lng, ll.lat]);
-          coords.push([coords[0][0], coords[0][1]]); // cerrar polígono
+          coords.push([coords[0][0], coords[0][1]]);
           let centroide = turf.centroid(turf.polygon([coords]));
           let cLat = centroide.geometry.coordinates[1];
           let cLng = centroide.geometry.coordinates[0];
 
-          // Creamos el marcador de la etiqueta con interactive: false
           let marker = L.marker([cLat, cLng], {
-            interactive: false, // clic pasa al polígono
+            interactive: false,
             icon: L.divIcon({
               className: "etiqueta-poligono",
               html: pol._label,
@@ -440,17 +487,15 @@
       });
     }
 
-
     // Cambiar territorio desde select con loader
     function cambiarTerritorio() {
       var selector = document.getElementById("selectorTerritorios");
       var valor = selector.value;
       selector.blur();
 
+      ocultarMenu();
       etiquetasActivas.forEach(m => map.removeLayer(m));
       etiquetasActivas = [];
-
-      // Quitar overlay anterior si existe
       if (overlayGris) map.removeLayer(overlayGris);
 
       const match = valor.match(/^territorio(\d+)$/);
@@ -459,30 +504,13 @@
         const grupo = window[`territorio${num}`];
         if (typeof grupo !== "undefined" && grupo && grupo.getLayers().length > 0) {
           flyWithLoader(grupo.getBounds(), function () {
-            mostrarEtiquetas(grupo);
             enfocarTerritorio(grupo);
           });
         }
       }
     }
 
-    // Área Grande con loader
-    document.getElementById("btnAreaGrande").addEventListener("click", function () {
-      // Resetear el select para que no quede seleccionado ningún territorio
-      document.getElementById("selectorTerritorios").value = "";
-      // Quitar overlay gris
-      if (overlayGris) map.removeLayer(overlayGris);
-      // Borrar etiquetas de territorios anteriores
-      etiquetasActivas.forEach(m => map.removeLayer(m));
-      etiquetasActivas = [];
-
-      if (typeof areaGrande !== "undefined" && areaGrande) {
-        flyWithLoader(areaGrande.getBounds(), function () {
-          map.setView(areaGrande.getBounds().getCenter(), 15);
-        });
-      }
-    });
-
+    // Registrar marcadores fijos
     function registrarMarcadorFijo(marker) {
       if (!window.marcadoresIniciales.includes(marker)) {
         marker.addTo(map);
@@ -490,18 +518,9 @@
       }
     }
 
-
-
-
-
-
-
-
-
-
-
-
   </script>
+
+
 
   <!-- Archivos externos de territorios -->
 

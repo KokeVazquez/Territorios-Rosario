@@ -7,6 +7,7 @@ function crearTerritorio(datosTerritorio) {
   // 1. Crear grupo
   // ------------------------------
   var grupo = L.featureGroup().addTo(map);
+  grupo._id = datosTerritorio.id; // id del grupo
 
   // ------------------------------
   // 2. Estado y notas guardadas
@@ -22,24 +23,21 @@ function crearTerritorio(datosTerritorio) {
     pol._id = d.id;
     pol._link = d.link;
 
-    pol._originalStyle = { color: pol.options.color, fillColor: pol.options.fillColor || pol.options.color, fillOpacity: pol.options.fillOpacity, weight: pol.options.weight };
+    pol._originalStyle = {
+      color: pol.options.color,
+      fillColor: pol.options.fillColor || pol.options.color,
+      fillOpacity: pol.options.fillOpacity,
+      weight: pol.options.weight
+    };
 
     pol._selected = estadoGuardado[pol._id] || false;
     if (pol._selected) pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
 
     if (d.label) pol._label = d.label;
 
-    // Selección
-    pol.on("click", function () {
-      pol._selected = !pol._selected;
-      pol.setStyle(pol._selected ? { color: "gray", fillColor: "gray", fillOpacity: 0.9 } : pol._originalStyle);
-      estadoGuardado[pol._id] = pol._selected;
-      localStorage.setItem(datosTerritorio.id + "_estado", JSON.stringify(estadoGuardado));
-      if (pol._selected) abrirPopupTrabajado(pol._id, notasPoligonos, datosTerritorio.id);
-    });
-
-    // Menú contextual
-    pol.on("contextmenu", function (e) { mostrarMenu(e, pol, notasPoligonos, datosTerritorio.id); });
+    // **No registramos eventos aquí**, se harán solo al enfocar
+    // pol.on("click", ...)
+    // pol.on("contextmenu", ...)
   });
 
   return { grupo: grupo, notasPoligonos: notasPoligonos };
@@ -106,7 +104,6 @@ function mostrarNotasPopup(id, notasPoligonos, territorioId) {
   else notas.forEach((nota, i) => contenido += `${i + 1}. ${nota} <button onclick="confirmarEliminarNotaPopup('${id}', ${i}, '${territorioId}')">❌</button><br>`);
 
   L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
-
 }
 
 function confirmarEliminarNotaPopup(id, index, territorioId) {
@@ -149,7 +146,6 @@ function abrirPopupTrabajado(id, notasPoligonos, territorioId) {
   };
 }
 
-
 function mostrarCapitanes(territorioId) {
   ocultarMenu();
   var capitanes = JSON.parse(localStorage.getItem(territorioId + "_capitanes") || "{}");
@@ -176,7 +172,6 @@ function mostrarCapitanes(territorioId) {
   L.popup().setLatLng(map.getCenter()).setContent(contenido).openOn(map);
 }
 
-
 function confirmarEliminarCapitan(polId, territorioId) {
   L.popup().setLatLng(map.getCenter()).setContent(`
     <b>¿Eliminar este registro de Capitán?</b><br>
@@ -194,5 +189,43 @@ function eliminarCapitan(polId, territorioId) {
 
   mostrarCapitanes(territorioId);
 }
+
+// =============================
+// === Función para registrar eventos solo en territorio activo ===
+// =============================
+
+function registrarEventosTerritorioActivo(territorio, notasPoligonos, territorioId) {
+  territorio.eachLayer(function (pol) {
+    // Quitamos cualquier evento anterior
+    pol.off("click");
+    pol.off("contextmenu");
+
+    // Solo el territorio activo puede ser clickeado
+    pol.on("click", function () {
+      // Alternar selección
+      pol._selected = !pol._selected;
+
+      // Cambiar estilo según selección
+      if (pol._selected) {
+        pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
+      } else {
+        pol.setStyle(pol._originalStyle);
+      }
+
+      // Guardar estado en localStorage
+      var estadoGuardado = JSON.parse(localStorage.getItem(territorioId + "_estado") || "{}");
+      estadoGuardado[pol._id] = pol._selected;
+      localStorage.setItem(territorioId + "_estado", JSON.stringify(estadoGuardado));
+
+      // Abrir popup “Trabajado” solo si se selecciona
+      if (pol._selected) abrirPopupTrabajado(pol._id, notasPoligonos, territorioId);
+    });
+
+    pol.on("contextmenu", function (e) {
+      mostrarMenu(e, pol, notasPoligonos, territorioId);
+    });
+  });
+}
+
 
 
