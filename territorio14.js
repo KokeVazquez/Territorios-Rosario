@@ -23,7 +23,7 @@ var datosTerritorio14 = {
                 [[28.605457, -106.071880], [28.605046, -106.072180], [28.604514, -106.071230], [28.604928, -106.070921]]
             ],
             color: "rgba(70, 44, 11, 1)",
-            fillOpacity: 0.8,
+            fillOpacity: 1.0,
             weight: 2,
             label: "Parque",
             link: "https://maps.app.goo.gl/GB53MoyQNpS6y7zY7"

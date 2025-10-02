@@ -12,7 +12,7 @@ var datosTerritorio73 = {
                 [[28.607205, -106.062250], [28.606966, -106.062510], [28.606425, -106.061864], [28.606656, -106.061612]]
             ],
             color: "rgba(70, 44, 11, 1)",
-            fillOpacity: 0.8,
+            fillOpacity: 1.0,
             weight: 2,
             label: "Kinder",
             link: "https://maps.app.goo.gl/UGSG9i96s4rsetKt7"
@@ -23,7 +23,7 @@ var datosTerritorio73 = {
                 [[28.607235, -106.062220], [28.606696, -106.061576], [28.607322, -106.060872], [28.607859, -106.061491]]
             ],
             color: "rgba(70, 44, 11, 1)",
-            fillOpacity: 0.8,
+            fillOpacity: 1.0,
             weight: 2,
             label: "Escuela",
             link: "https://maps.app.goo.gl/dwswLAe5vHqr2Wiy5"

@@ -45,7 +45,7 @@ var datosTerritorio9 = {
                 [28.611419, -106.081263], [28.611283, -106.081362], [28.611035, -106.080913], [28.611167, -106.080818]
             ],
             color: "rgba(70, 44, 11, 1)",
-            fillOpacity: 0.8,
+            fillOpacity: 1.0,
             weight: 2,
             label: "Kinder",
             link: "https://maps.app.goo.gl/R176do9EHrSnABJs8"

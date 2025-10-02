@@ -55,7 +55,7 @@ var datosTerritorio16 = {
                 [[28.613201, -106.082124], [28.612332, -106.082754], [28.611839, -106.081882], [28.612699, -106.081259]]
             ],
             color: "rgba(70, 44, 11, 1)",
-            fillOpacity: 0.8,
+            fillOpacity: 1.0,
             weight: 2,
             label: "Escuela",
             link: "https://maps.app.goo.gl/DCdBfeBLiPi4g2Hn7"

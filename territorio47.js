@@ -45,7 +45,7 @@ var datosTerritorio47 = {
                 [[28.612962, -106.072681], [28.612804, -106.072402], [28.612416, -106.072689], [28.612585, -106.072979]]
             ],
             color: "rgba(70, 44, 11, 1)",
-            fillOpacity: 0.8,
+            fillOpacity: 1.0,
             weight: 2,
             label: "Escuela",
             link: "https://maps.app.goo.gl/WnGVaDDDmagZ5czJ8"
@@ -56,7 +56,7 @@ var datosTerritorio47 = {
                 [[28.612665, -106.073895], [28.612553, -106.073978], [28.612366, -106.073636], [28.612475, -106.073556]]
             ],
             color: "rgba(70, 44, 11, 1)",
-            fillOpacity: 0.8,
+            fillOpacity: 1.0,
             weight: 2,
             label: "Asilo",
             link: "https://maps.app.goo.gl/uyAAWqkFzFRWbbLN6"

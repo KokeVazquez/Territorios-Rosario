@@ -12,7 +12,7 @@ var datosTerritorio41 = {
                 [[28.611966, -106.073011], [28.612525, -106.074007], [28.612270, -106.074192], [28.611725, -106.073190]]
             ],
             color: "rgba(70, 44, 11, 1)",
-            fillOpacity: 0.8,
+            fillOpacity: 1.0,
             weight: 2,
             label: "Parque",
             link: "https://maps.app.goo.gl/Zhrny1dnb3fVuKhf9"
@@ -23,7 +23,7 @@ var datosTerritorio41 = {
                 [[28.612199, -106.074241], [28.611590, -106.074685], [28.611050, -106.073698], [28.611656, -106.073242]]
             ],
             color: "rgba(70, 44, 11, 1)",
-            fillOpacity: 0.8,
+            fillOpacity: 1.0,
             weight: 2,
             label: "Escuela",
             link: "https://maps.app.goo.gl/jVi86ZbvbzcaDYqg8"
