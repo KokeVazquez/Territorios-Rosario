@@ -410,20 +410,23 @@
     map.on("click", ocultarMenu);
 
     function mostrarEtiquetas(territorio) {
+      // Primero quitamos todas las etiquetas activas
       etiquetasActivas.forEach(m => map.removeLayer(m));
       etiquetasActivas = [];
 
+      // Recorremos cada polígono del territorio
       territorio.eachLayer(function (pol) {
         if (pol._label) {
           let latlngs = pol.getLatLngs()[0];
           let coords = latlngs.map(ll => [ll.lng, ll.lat]);
-          coords.push([coords[0][0], coords[0][1]]);
+          coords.push([coords[0][0], coords[0][1]]); // cerrar polígono
           let centroide = turf.centroid(turf.polygon([coords]));
           let cLat = centroide.geometry.coordinates[1];
           let cLng = centroide.geometry.coordinates[0];
 
+          // Creamos el marcador de la etiqueta con interactive: false
           let marker = L.marker([cLat, cLng], {
-            interactive: false,
+            interactive: false, // clic pasa al polígono
             icon: L.divIcon({
               className: "etiqueta-poligono",
               html: pol._label,
@@ -432,11 +435,11 @@
             })
           }).addTo(map);
 
-
           etiquetasActivas.push(marker);
         }
       });
     }
+
 
     // Cambiar territorio desde select con loader
     function cambiarTerritorio() {
