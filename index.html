@@ -26,8 +26,6 @@
 
 
 
-
-
 <style>
   html,
   body {
@@ -303,9 +301,17 @@
   </div>
 
 
-  <button onclick="exportarPoligonos()" style="position: absolute; top: 100px; right: 20px; z-index: 1000;">
+
+
+  <!--BOTON PARA CREAR POLIGONOS-->
+
+  <!--<button onclick="exportarPoligonos()" style="position: absolute; top: 100px; right: 20px; z-index: 1000;">
     📤 Exportar
   </button>
+-->
+
+
+
 
 
 
@@ -417,6 +423,7 @@
           let cLng = centroide.geometry.coordinates[0];
 
           let marker = L.marker([cLat, cLng], {
+            interactive: false,
             icon: L.divIcon({
               className: "etiqueta-poligono",
               html: pol._label,
@@ -424,6 +431,7 @@
               iconAnchor: [0, 0]
             })
           }).addTo(map);
+
 
           etiquetasActivas.push(marker);
         }
