@@ -23,119 +23,74 @@
 </head>
 
 <style>
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
 
-  #map {
-    height: 100vh;
-    width: 100vw;
-    margin: 0;
-    padding: 0;
-  }
+#map {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
 
-  .menu {
-    position: fixed;
-    top: 1vh;
-    left: 1vw;
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.0);
-    padding: 0.5em;
-    border-radius: 8px; /* corregido */
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
+/* === Menú izquierdo (selector de territorios) === */
+.menu {
+  position: fixed;
+  top: 1vh;
+  left: 1vw;
+  z-index: 1000;
+  background: rgba(0,0,0,0);
+  padding: 0.5em;
+  border-radius: 8px;
+}
 
-  #loader {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.8);
-    display: none; /* solo aparece si lo activas con JS */
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
+/* === Menú derecho (Área Grande + Notas) === */
+.menu-derecha {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
 
-  #loader img {
-    width: 120px;
-    height: auto;
-    animation: pulse 1.5s infinite;
-  }
 
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-      opacity: 0.8;
-    }
-    50% {
-      transform: scale(1.1);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 0.8;
-    }
-  }
 
-  /* === Botones principales === */
-  #selectorTerritorios,
-  #btnAreaGrande,
-  #btnMostrarTodasNotas {
-    padding: 1.2vh 1vw;
-    font-size: 0.8vw;
-    font-weight: bold;
-    border: 2px solid #000;
-    outline: none;
-    border-radius: 20px;
-    background-color: #fff;
-    color: #000;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    transition: all 0.25s ease-in-out;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-  }
+/* === Loader === */
+#loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
 
-  #selectorTerritorios {
-    background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 1vw center;
-    background-size: 16px;
-    padding-right: 3vw;
-  }
+#loader img {
+  width: 120px;
+  height: auto;
+  animation: pulse 1.5s infinite;
+}
 
-  #selectorTerritorios:hover,
-  #btnAreaGrande:hover,
-  #btnMostrarTodasNotas:hover {
-    background-color: #ffffff;
-    color: #1f1e1e;
-    border-color: #444;
-    transform: scale(1.03);
-  }
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
 
-  #selectorTerritorios:active,
-  #btnAreaGrande:active,
-  #btnMostrarTodasNotas:active {
-    transform: scale(0.97);
-    background-color: #222;
-    color: #fff;
-    border-color: #111;
-  }
-
-  @media (max-width: 480px) {
-    #selectorTerritorios,
+/* === Botones generales === */
+#selectorTerritorios,
 #btnAreaGrande,
 #btnMostrarTodasNotas {
   padding: 1.2vh 1vw;
@@ -159,60 +114,102 @@
   -webkit-touch-callout: none;
 }
 
+#selectorTerritorios {
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 1vw center;
+  background-size: 16px;
+  padding-right: 3vw;
+}
+
+#selectorTerritorios:hover,
+#btnAreaGrande:hover,
+#btnMostrarTodasNotas:hover {
+  background-color: #ffffff;
+  color: #1f1e1e;
+  border-color: #444;
+  transform: scale(1.03);
+}
+
+#selectorTerritorios:active,
+#btnAreaGrande:active,
+#btnMostrarTodasNotas:active {
+  transform: scale(0.97);
+  background-color: #222;
+  color: #fff;
+  border-color: #111;
+}
+
+/* === Responsivo móvil === */
+@media (max-width: 480px) {
+  #selectorTerritorios {
+    font-size: 4vw;
+    padding: 2vh 3vw;
+    background-position: right 3vw center;
+    padding-right: 6vw;
   }
 
-  .leaflet-draw.leaflet-control {
-    margin-top: 5vh !important;
+  #btnAreaGrande,
+  #btnMostrarTodasNotas {
+    font-size: 4vw;
+    padding: 1.5vh 2vw;
+    min-width: 90px;
   }
+}
 
-  .etiqueta-poligono {
-    display: inline-block;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50px;
-    padding: 2px 10px;
-    font-weight: 500;
-    font-size: 15px;
-    color: black;
-    text-align: center;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
-    pointer-events: none;
-    white-space: nowrap;
-  }
+/* === Otros estilos === */
+.leaflet-draw.leaflet-control {
+  margin-top: 5vh !important;
+}
 
-  .menu-contextual {
-    background: white;
-    padding: 8px;
-    border-radius: 6px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    font-size: 14px;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-  }
+.etiqueta-poligono {
+  display: inline-block;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50px;
+  padding: 2px 10px;
+  font-weight: 500;
+  font-size: 15px;
+  color: black;
+  text-align: center;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+  pointer-events: none;
+  white-space: nowrap;
+}
 
-  .menu-contextual button {
-    padding: 6px 12px;
-    font-size: 14px;
-    cursor: pointer;
-    display: block;
-    margin: 5px 0;
-    width: 100%;
-  }
+.menu-contextual {
+  background: white;
+  padding: 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  font-size: 14px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
 
-  .etiquetaTerritorio {
-    background: none;
-    border-radius: 50%;
-    padding: 5px 1px;
-    font-weight: bold;
-    font-size: 20px;
-    color: black;
-    text-align: center;
-    pointer-events: none;
-    box-shadow: 0 0px 0px black;
-  }
+.menu-contextual button {
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  display: block;
+  margin: 5px 0;
+  width: 100%;
+}
+
+.etiquetaTerritorio {
+  background: none;
+  border-radius: 50%;
+  padding: 5px 1px;
+  font-weight: bold;
+  font-size: 20px;
+  color: black;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 0px 0px black;
+}
 </style>
-</head>
+
 
 
 <body>
@@ -308,10 +305,11 @@
     </select>
 
     <!-- Botón Área Grande -->
-    <button id="btnAreaGrande">Área Grande</button>
-    <button id="btnMostrarTodasNotas">📝 Mostrar todas las notas</button>
+  <button id="btnAreaGrande" style="position: fixed; top: 1%; right: 1%; z-index: 1000;">Área Grande</button>
+<button id="btnMostrarTodasNotas" style="position: fixed; top: 6%; right: 1%; z-index: 1000;">Notas</button>
 
-  </div>
+</div>
+
 
 
 
