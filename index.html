@@ -19,270 +19,287 @@
   <meta property="og:description" content="Mapa interactivo con territorios y funciones para trabajo de campo.">
   <meta property="og:image" content="https://i.imgur.com/HlPcpSB.png">
   <meta property="og:url" content="https://KokeVazquez.github.io/Territorios-Rosario/?v=3">
-  <meta property="og:type" content="website"> 
+  <meta property="og:type" content="website">
 </head>
 
 <style>
-/* ===========================
+  /* ===========================
    === Base / Reset =========
    =========================== */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-}
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+  }
 
-/* ===========================
+  /* ===========================
    === Mapa =================
    =========================== */
-#map {
-  height: 100vh;
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-}
+  #map {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+  }
 
-/* =====================================
+  /* =====================================
    === Menú izquierdo (selector) =======
    ===================================== */
-.menu {
-  position: fixed;
-  top: 1vh;
-  left: 1vw;
-  z-index: 1000;
-  background: rgba(0,0,0,0);
-  padding: 0.5em;
-  border-radius: 8px;
-}
+  .menu {
+    position: fixed;
+    top: 1vh;
+    left: 1vw;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0);
+    padding: 0.5em;
+    border-radius: 8px;
+  }
 
-/* =====================================
+  /* =====================================
    === Menú derecho (Área Grande + Notas)
    ===================================== */
-.menu-derecha {
-  position: fixed;
-  top: 1%;
-  right: 1%;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 2vh; /* separación entre botones para escritorio */
-  margin: 0;
-  padding: 0;
-}
+  .menu-derecha {
+    position: fixed;
+    top: 1%;
+    right: 1%;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    /* separación entre botones para escritorio */
+    margin: 0;
+    padding: 0;
+  }
 
-/* === Estilos para los botones dentro de menu-derecha === */
-.menu-derecha button {
-  padding: 1vh 2vw;
-  font-size: 1.8vh;
-  border-radius: 5px;
-  cursor: pointer;
-}
+  /* === Estilos para los botones dentro de menu-derecha === */
+  .menu-derecha button {
+    padding: 1vh 2vw;
+    font-size: 1.8vh;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 
-/* =================================================
+  /* =================================================
    === Selector de meses debajo del botón Notas ===
    === (estética igual a selectorTerritorios) ======
    ================================================= */
-#filtroMes {
-  padding: 1.0vh 1vw;
-  font-size: 0.8vw;
-  font-weight: bold;
-  border: 2px solid #000;
-  outline: none;
-  border-radius: 20px;
-  background-color: #fff;
-  color: #000;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  transition: all 0.25s ease-in-out;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  margin-top: 0.5vh; /* pequeño espacio sobre el select */
-  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 1vw center;
-  background-size: 16px;
-  padding-right: 2vw;
-}
+  #filtroMes {
+    padding: 1.0vh 1vw;
+    font-size: 0.8vw;
+    font-weight: bold;
+    border: 2px solid #000;
+    outline: none;
+    border-radius: 20px;
+    background-color: #fff;
+    color: #000;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.25s ease-in-out;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    margin-top: 0.5vh;
+    /* pequeño espacio sobre el select */
+    background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 1vw center;
+    background-size: 16px;
+    padding-right: 2vw;
+  }
 
-#filtroMes:hover {
-  background-color: #ffffff;
-  color: #1f1e1e;
-  border-color: #444;
-  transform: scale(1.03);
-}
+  #filtroMes:hover {
+    background-color: #ffffff;
+    color: #1f1e1e;
+    border-color: #444;
+    transform: scale(1.03);
+  }
 
-#filtroMes:active {
-  transform: scale(0.97);
-  background-color: #222;
-  color: #fff;
-  border-color: #111;
-}
+  #filtroMes:active {
+    transform: scale(0.97);
+    background-color: #222;
+    color: #fff;
+    border-color: #111;
+  }
 
-/* ===========================
+  /* ===========================
    === Responsivo móvil ======
    =========================== */
-@media (max-width: 480px) {
-  .menu-derecha button {
-    font-size: 3vw !important;
-    padding: 2vh 3vw !important;
-    min-width: 100px !important;
+  @media (max-width: 480px) {
+    .menu-derecha button {
+      font-size: 3vw !important;
+      padding: 2vh 3vw !important;
+      min-width: 100px !important;
+    }
+
+    .menu-derecha button {
+      font-size: 3vw !important;
+      /* aumentar tamaño del texto en móvil */
+      padding: 2vh 2vw !important;
+      /* más espacio dentro de los botones */
+      min-width: 100px !important;
+      /* ancho mínimo para que no se achiquen */
+    }
+
+    #selectorTerritorios,
+    #filtroMes {
+      font-size: 3vw !important;
+      padding: 2vh 1vw !important;
+      padding-right: 4vw !important;
+      background-position: right 3vw center;
+    }
   }
 
-  .menu-derecha button {
-    font-size: 3vw!important;   /* aumentar tamaño del texto en móvil */
-    padding: 2vh 2vw!important; /* más espacio dentro de los botones */
-    min-width: 100px!important; /* ancho mínimo para que no se achiquen */
-  }
 
-  #selectorTerritorios,
-  #filtroMes {
-    font-size: 3vw !important;
-    padding: 2vh 1vw !important;
-    padding-right: 4vw!important;
-    background-position: right 3vw center;
-  }
-}
-
-
-/* ===========================
+  /* ===========================
    === Loader ===============
    =========================== */
-#loader {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
+  #loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
 
-#loader img {
-  width: 120px;
-  height: auto;
-  animation: pulse 1.5s infinite;
-}
+  #loader img {
+    width: 120px;
+    height: auto;
+    animation: pulse 1.5s infinite;
+  }
 
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.8; }
-}
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
 
-/* =================================
+    50% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+
+    100% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+  }
+
+  /* =================================
    === Botones generales / select ==
    ================================= */
-#selectorTerritorios,
-#btnAreaGrande,
-#btnMostrarTodasNotas {
-  padding: 1.0vh 1vw;
-  font-size: 0.8vw;
-  font-weight: bold;
-  border: 2px solid #000;
-  outline: none;
-  border-radius: 20px;
-  background-color: #fff;
-  color: #000;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  transition: all 0.25s ease-in-out;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
+  #selectorTerritorios,
+  #btnAreaGrande,
+  #btnMostrarTodasNotas {
+    padding: 1.0vh 1vw;
+    font-size: 0.8vw;
+    font-weight: bold;
+    border: 2px solid #000;
+    outline: none;
+    border-radius: 20px;
+    background-color: #fff;
+    color: #000;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.25s ease-in-out;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-#selectorTerritorios {
-  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 1vw center;
-  background-size: 16px;
-  padding-right: 2vw;
-}
+  #selectorTerritorios {
+    background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 1vw center;
+    background-size: 16px;
+    padding-right: 2vw;
+  }
 
-#selectorTerritorios:hover,
-#btnAreaGrande:hover,
-#btnMostrarTodasNotas:hover {
-  background-color: #ffffff;
-  color: #1f1e1e;
-  border-color: #444;
-  transform: scale(1.03);
-}
+  #selectorTerritorios:hover,
+  #btnAreaGrande:hover,
+  #btnMostrarTodasNotas:hover {
+    background-color: #ffffff;
+    color: #1f1e1e;
+    border-color: #444;
+    transform: scale(1.03);
+  }
 
-#selectorTerritorios:active,
-#btnAreaGrande:active,
-#btnMostrarTodasNotas:active {
-  transform: scale(0.97);
-  background-color: #222;
-  color: #fff;
-  border-color: #111;
-}
+  #selectorTerritorios:active,
+  #btnAreaGrande:active,
+  #btnMostrarTodasNotas:active {
+    transform: scale(0.97);
+    background-color: #222;
+    color: #fff;
+    border-color: #111;
+  }
 
-/* ===========================
+  /* ===========================
    === Otros estilos ========
    =========================== */
-.leaflet-draw.leaflet-control {
-  margin-top: 5vh !important;
-}
+  .leaflet-draw.leaflet-control {
+    margin-top: 5vh !important;
+  }
 
-.etiqueta-poligono {
-  display: inline-block;
-  background: rgba(255,255,255,0.9);
-  border-radius: 50px;
-  padding: 2px 10px;
-  font-weight: 500;
-  font-size: 15px;
-  color: black;
-  text-align: center;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.15);
-  pointer-events: none;
-  white-space: nowrap;
-}
+  .etiqueta-poligono {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50px;
+    padding: 2px 10px;
+    font-weight: 500;
+    font-size: 15px;
+    color: black;
+    text-align: center;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    white-space: nowrap;
+  }
 
-.menu-contextual {
-  background: white;
-  padding: 8px;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  font-size: 14px;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
+  .menu-contextual {
+    background: white;
+    padding: 8px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    font-size: 14px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
 
-.menu-contextual button {
-  padding: 6px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  display: block;
-  margin: 5px 0;
-  width: 100%;
-}
+  .menu-contextual button {
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    display: block;
+    margin: 5px 0;
+    width: 100%;
+  }
 
-.etiquetaTerritorio {
-  background: none;
-  border-radius: 50%;
-  padding: 5px 1px;
-  font-weight: bold;
-  font-size: 20px;
-  color: black;
-  text-align: center;
-  pointer-events: none;
-  box-shadow: 0 0px 0px black;
-}
+  .etiquetaTerritorio {
+    background: none;
+    border-radius: 50%;
+    padding: 5px 1px;
+    font-weight: bold;
+    font-size: 20px;
+    color: black;
+    text-align: center;
+    pointer-events: none;
+    box-shadow: 0 0px 0px black;
+  }
 </style>
 
 
@@ -383,27 +400,27 @@ html, body {
 
 
     </select>
-    </div>
-    
- <div class="menu-derecha">
-  <button id="btnAreaGrande">Área Grande</button>
-  <button id="btnMostrarTodasNotas">Notas</button>
-  <select id="filtroMes" onchange="filtrarPorMes()">
-    <option value="">-- Filtrar por mes --</option>
-    <option value="01">Enero</option>
-    <option value="02">Febrero</option>
-    <option value="03">Marzo</option>
-    <option value="04">Abril</option>
-    <option value="05">Mayo</option>
-    <option value="06">Junio</option>
-    <option value="07">Julio</option>
-    <option value="08">Agosto</option>
-    <option value="09">Septiembre</option>
-    <option value="10">Octubre</option>
-    <option value="11">Noviembre</option>
-    <option value="12">Diciembre</option>
-  </select>
-</div>
+  </div>
+
+  <div class="menu-derecha">
+    <button id="btnAreaGrande">Área Grande</button>
+    <button id="btnMostrarTodasNotas">Notas</button>
+    <select id="filtroMes" onchange="filtrarPorMes()">
+      <option value="">-- Filtrar por mes --</option>
+      <option value="01">Enero</option>
+      <option value="02">Febrero</option>
+      <option value="03">Marzo</option>
+      <option value="04">Abril</option>
+      <option value="05">Mayo</option>
+      <option value="06">Junio</option>
+      <option value="07">Julio</option>
+      <option value="08">Agosto</option>
+      <option value="09">Septiembre</option>
+      <option value="10">Octubre</option>
+      <option value="11">Noviembre</option>
+      <option value="12">Diciembre</option>
+    </select>
+  </div>
 
 
 
@@ -442,7 +459,7 @@ html, body {
       maxZoom: 22,
       zoomControl: false,
       doubleClickZoom: false
-    }); 
+    });
     var boundsIniciales = L.latLngBounds([[28.600, -106.075], [28.618, -106.070]]);
     var overlayGris;
 
@@ -706,18 +723,40 @@ html, body {
     // ================================
     function filtrarPorMes() {
       const mes = document.getElementById('filtroMes').value;
+
+      // quitar indicadores anteriores
       window.indicadoresNotas.forEach(m => map.removeLayer(m));
       window.indicadoresNotas = [];
 
-      if (!mes) return;
+      // quitar overlay gris anterior
+      if (overlayGris) map.removeLayer(overlayGris);
+      overlayGris = null;
+
+      if (!mes) return; // si no hay mes seleccionado, no pintar nada
+
+      const polSeleccionados = [];
 
       window.todosLosTerritorios.forEach(territorio => {
         const capitanes = JSON.parse(localStorage.getItem(territorio._id + "_capitanes") || "{}");
-        territorio.eachLayer(function (pol) {
+
+        territorio.eachLayer(pol => {
+          pol._selected = false;               // No marcado inicialmente
+          pol.setStyle(pol._originalStyle);    // Restaurar estilo original
           const registros = capitanes[pol._id] || [];
+          let coincideMes = false;
+
           registros.forEach(nota => {
-            const fecha = nota.split('| Fecha:')[1].trim();
-            if (fecha && fecha.slice(5,7) === mes) {
+            const fecha = nota.split('| Fecha:')[1]?.trim();
+            if (fecha && fecha.slice(5, 7) === mes) {
+              coincideMes = true;
+
+              // ================================
+              // === PINTAR DE GRIS EL POLÍGONO ===
+              // ================================
+              pol._selected = true;
+              pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
+
+              // crear indicador de nota
               const latlngs = pol.getLatLngs()[0];
               const coords = latlngs.map(ll => [ll.lng, ll.lat]);
               coords.push([coords[0][0], coords[0][1]]);
@@ -738,9 +777,60 @@ html, body {
               window.indicadoresNotas.push(marker);
             }
           });
+
+          // si coincide con el mes, agregar a la lista de polígonos seleccionados
+          if (coincideMes) polSeleccionados.push(pol);
+
+          // ================================
+          // === DESPINTAR SI NO COINCIDE ===
+          // ================================
+          if (!coincideMes) {
+            pol._selected = false;
+            pol.setStyle(pol._originalStyle);
+          }
         });
       });
+
+      // crear overlay gris solo sobre los polígonos seleccionados
+      if (polSeleccionados.length) {
+        const mundo = [[90, -180], [90, 180], [-90, 180], [-90, -180], [90, -180]];
+        const huecos = polSeleccionados.map(pol => pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
+
+        overlayGris = L.polygon([mundo, ...huecos], {
+          color: "#000",
+          fillColor: "#000",
+          fillOpacity: 0.6,
+          stroke: false,
+          interactive: false
+        }).addTo(map);
+      }
     }
+
+
+    // ================================
+    // === ICONOS DE NOTA (ya estaba) ===
+    // ================================
+    if (coincideMes) {
+      const latlngs = pol.getLatLngs()[0];
+      const coords = latlngs.map(ll => [ll.lng, ll.lat]);
+      coords.push([coords[0][0], coords[0][1]]);
+      const centroide = turf.centroid(turf.polygon([coords]));
+      const cLat = centroide.geometry.coordinates[1];
+      const cLng = centroide.geometry.coordinates[0];
+
+      const marker = L.marker([cLat, cLng], {
+        interactive: false,
+        icon: L.divIcon({
+          className: "indicador-nota",
+          html: "📒",
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        })
+      }).addTo(map);
+
+      window.indicadoresNotas.push(marker);
+    }
+
 
     // ================================
     // === Inicializar todos los territorios automáticamente ===
@@ -769,7 +859,8 @@ html, body {
 
       grupo._marcadorTerritorio = marcador;
     });
-</script>
+
+  </script>
 
 
 
