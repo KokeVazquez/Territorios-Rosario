@@ -22,10 +22,6 @@
   <meta property="og:type" content="website">
 </head>
 
-
-
-
-
 <style>
   html,
   body {
@@ -49,7 +45,7 @@
     z-index: 1000;
     background: rgba(0, 0, 0, 0.0);
     padding: 0.5em;
-    border-radius: px;
+    border-radius: 8px; /* corregido */
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
@@ -62,16 +58,14 @@
     width: 100%;
     height: 100%;
     background: rgba(255, 255, 255, 0.8);
-    display: flex;
+    display: none; /* solo aparece si lo activas con JS */
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    display: none;
   }
 
   #loader img {
     width: 120px;
-    /* tamaño del logo */
     height: auto;
     animation: pulse 1.5s infinite;
   }
@@ -81,42 +75,19 @@
       transform: scale(1);
       opacity: 0.8;
     }
-
     50% {
       transform: scale(1.1);
       opacity: 1;
     }
-
     100% {
       transform: scale(1);
       opacity: 0.8;
     }
   }
 
-
-
+  /* === Botones principales === */
   #selectorTerritorios,
-  #btnAreaGrande {
-    padding: 1.2vh 1vw;
-    font-size: 0.8vw;
-    font-weight: bold;
-    border: 2px solid #000;
-    outline: none;
-    border-radius: 20px;
-    background-color: #fff;
-    color: #000;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    transition: all 0.25s ease-in-out;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-  }
-
-  #selectorTerritorios,
+  #btnAreaGrande,
   #btnMostrarTodasNotas {
     padding: 1.2vh 1vw;
     font-size: 0.8vw;
@@ -146,7 +117,8 @@
   }
 
   #selectorTerritorios:hover,
-  #btnAreaGrande:hover {
+  #btnAreaGrande:hover,
+  #btnMostrarTodasNotas:hover {
     background-color: #ffffff;
     color: #1f1e1e;
     border-color: #444;
@@ -154,7 +126,8 @@
   }
 
   #selectorTerritorios:active,
-  #btnAreaGrande:active {
+  #btnAreaGrande:active,
+  #btnMostrarTodasNotas:active {
     transform: scale(0.97);
     background-color: #222;
     color: #fff;
@@ -162,9 +135,9 @@
   }
 
   @media (max-width: 480px) {
-
     #selectorTerritorios,
-    #btnAreaGrande {
+    #btnAreaGrande,
+    #btnMostrarTodasNotas {
       font-size: 3vw;
       padding: 1.5vh 2vw;
       background-position: right 3vw center;
@@ -224,6 +197,7 @@
   }
 </style>
 </head>
+
 
 <body>
   <div class="menu">
