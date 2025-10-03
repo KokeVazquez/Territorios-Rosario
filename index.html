@@ -49,7 +49,6 @@ html, body {
 }
 
 /* === Menú derecho (Área Grande + Notas) === */
-/* === Menú derecho (Área Grande + Notas) === */
 .menu-derecha {
   position: fixed;
   top: 1%;
@@ -57,14 +56,14 @@ html, body {
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 2vh;        /* separación mayor entre botones en escritorio */
+  gap: 2vh; /* separación entre botones para escritorio */
   margin: 0;
   padding: 0;
 }
 
 .menu-derecha button {
-  padding: 1vh 2vw; /* altura y ancho relativo a pantalla */
-  font-size: 1.8vh; /* tamaño de texto relativo a la pantalla */
+  padding: 1vh 2vw;
+  font-size: 1.8vh;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -72,16 +71,22 @@ html, body {
 /* === Responsivo móvil === */
 @media (max-width: 480px) {
   .menu-derecha {
-    gap: 3.5vh;      /* más espacio entre botones en móvil */
+    gap: 4vh; /* más espacio entre botones en móvil */
   }
 
   .menu-derecha button {
-    font-size: 4vw;   /* tamaño de texto en móvil */
-    padding: 1.5vh 2vw;
-    min-width: 90px;
+    font-size: 3vw;
+    padding: 1.2vh 2vw;
+    min-width: 70px;
+  }
+
+  #selectorTerritorios {
+    font-size: 3.5vw;
+    padding: 1vh 2vw;
+    padding-right: 5vw;
+    background-position: right 3vw center;
   }
 }
-
 
 /* === Loader === */
 #loader {
@@ -113,7 +118,7 @@ html, body {
 #selectorTerritorios,
 #btnAreaGrande,
 #btnMostrarTodasNotas {
-  padding: 1.2vh 1vw;
+  padding: 1.0vh 1vw;
   font-size: 0.8vw;
   font-weight: bold;
   border: 2px solid #000;
@@ -139,7 +144,7 @@ html, body {
   background-repeat: no-repeat;
   background-position: right 1vw center;
   background-size: 16px;
-  padding-right: 3vw;
+  padding-right: 2vw;
 }
 
 #selectorTerritorios:hover,
@@ -158,23 +163,6 @@ html, body {
   background-color: #222;
   color: #fff;
   border-color: #111;
-}
-
-/* === Responsivo móvil === */
-@media (max-width: 480px) {
-  #selectorTerritorios {
-    font-size: 3.5vw;
-    padding: 1vh 2vw;
-    padding-right: 5vw;
-    background-position: right 3vw center;
-  }
-
-  #btnAreaGrande,
-  #btnMostrarTodasNotas {
-    font-size: 3vw;
-    padding: 1vh 1.5vw;
-    min-width: 70px;
-  }
 }
 
 /* === Otros estilos === */
@@ -325,10 +313,9 @@ html, body {
 
     </select>
 
-    <!-- Botón Área Grande -->
-  <button id="btnAreaGrande" style="position: fixed; top: 1%; right: 1%; z-index: 1000;">Área Grande</button>
-<button id="btnMostrarTodasNotas" style="position: fixed; top: 6%; right: 1%; z-index: 1000;">Notas</button>
-
+    <div class="menu-derecha">
+  <button id="btnAreaGrande">Área Grande</button>
+  <button id="btnMostrarTodasNotas">Notas</button>
 </div>
 
 
