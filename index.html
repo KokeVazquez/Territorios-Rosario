@@ -23,6 +23,9 @@
 </head>
 
 <style>
+/* ===========================
+   === Base / Reset =========
+   =========================== */
 html, body {
   margin: 0;
   padding: 0;
@@ -30,6 +33,9 @@ html, body {
   width: 100%;
 }
 
+/* ===========================
+   === Mapa =================
+   =========================== */
 #map {
   height: 100vh;
   width: 100vw;
@@ -37,7 +43,9 @@ html, body {
   padding: 0;
 }
 
-/* === Menú izquierdo (selector de territorios) === */
+/* =====================================
+   === Menú izquierdo (selector) =======
+   ===================================== */
 .menu {
   position: fixed;
   top: 1vh;
@@ -48,7 +56,9 @@ html, body {
   border-radius: 8px;
 }
 
-/* === Menú derecho (Área Grande + Notas) === */
+/* =====================================
+   === Menú derecho (Área Grande + Notas)
+   ===================================== */
 .menu-derecha {
   position: fixed;
   top: 1%;
@@ -61,6 +71,7 @@ html, body {
   padding: 0;
 }
 
+/* === Estilos para los botones dentro de menu-derecha === */
 .menu-derecha button {
   padding: 1vh 2vw;
   font-size: 1.8vh;
@@ -68,7 +79,10 @@ html, body {
   cursor: pointer;
 }
 
-/* === Selector de meses debajo del botón Notas (igual a selectorTerritorios) === */
+/* =================================================
+   === Selector de meses debajo del botón Notas ===
+   === (estética igual a selectorTerritorios) ======
+   ================================================= */
 #filtroMes {
   padding: 1.0vh 1vw;
   font-size: 0.8vw;
@@ -110,7 +124,9 @@ html, body {
   border-color: #111;
 }
 
-/* === Responsivo móvil === */
+/* ===========================
+   === Responsivo móvil ======
+   =========================== */
 @media (max-width: 480px) {
   .menu-derecha button {
     font-size: 3vw !important;
@@ -134,7 +150,9 @@ html, body {
 }
 
 
-/* === Loader === */
+/* ===========================
+   === Loader ===============
+   =========================== */
 #loader {
   position: absolute;
   top: 0;
@@ -160,7 +178,9 @@ html, body {
   100% { transform: scale(1); opacity: 0.8; }
 }
 
-/* === Botones generales === */
+/* =================================
+   === Botones generales / select ==
+   ================================= */
 #selectorTerritorios,
 #btnAreaGrande,
 #btnMostrarTodasNotas {
@@ -210,7 +230,9 @@ html, body {
   border-color: #111;
 }
 
-/* === Otros estilos === */
+/* ===========================
+   === Otros estilos ========
+   =========================== */
 .leaflet-draw.leaflet-control {
   margin-top: 5vh !important;
 }
@@ -262,6 +284,7 @@ html, body {
   box-shadow: 0 0px 0px black;
 }
 </style>
+
 
 
 
