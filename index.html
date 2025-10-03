@@ -70,23 +70,26 @@ html, body {
 
 /* === Responsivo móvil === */
 @media (max-width: 480px) {
-  .menu-derecha {
-    gap: 4vh; /* más espacio entre botones en móvil */
+  .menu-derecha button {
+    font-size: 3vw !important;
+    padding: 2vh 3vw !important;
+    min-width: 100px !important;
   }
 
   .menu-derecha button {
-    font-size: 3vw;
-    padding: 1.2vh 2vw;
-    min-width: 70px;
+    font-size: 5vw;   /* aumentar tamaño del texto en móvil */
+    padding: 2vh 3vw; /* más espacio dentro de los botones */
+    min-width: 100px; /* ancho mínimo para que no se achiquen */
   }
 
   #selectorTerritorios {
-    font-size: 3.5vw;
-    padding: 1vh 2vw;
-    padding-right: 5vw;
+    font-size: 4vw !important;
+    padding: 2vh 2vw !important;
+    padding-right: 4vw!important;
     background-position: right 3vw center;
   }
 }
+
 
 /* === Loader === */
 #loader {
