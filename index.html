@@ -588,24 +588,30 @@
         });
       });
 
-      // Overlay gris sobre todo el mapa excepto el activo
-      if (overlayGris) map.removeLayer(overlayGris);
-      var mundo = [[90, -180], [90, 180], [-90, 180], [-90, -180], [90, -180]];
-      var huecos = [];
-      territorioActivo.eachLayer(pol => {
-        if (pol.getLatLngs) huecos.push(pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
-      });
-      overlayGris = L.polygon([mundo, ...huecos], {
-        color: "#000",
-        fillColor: "#000",
-        fillOpacity: 0.6,
-        stroke: false,
-        interactive: false
-      }).addTo(map);
+      // ========================
+      // === OVERLAY GRIS SOLO SI HAY MES SELECCIONADO ===
+      // ========================
+      if (mesActivo && overlayGris) {
+        map.removeLayer(overlayGris);
+        overlayGris = null;
+      }
+
+      if (mesActivo && polSeleccionados && polSeleccionados.length) {
+        const mundo = [[90, -180], [90, 180], [-90, 180], [-90, -180], [90, -180]];
+        const huecos = polSeleccionados.map(pol => pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
+        overlayGris = L.polygon([mundo, ...huecos], {
+          color: "#000",
+          fillColor: "#000",
+          fillOpacity: 0.6,
+          stroke: false,
+          interactive: false
+        }).addTo(map);
+      }
 
       mostrarEtiquetas();
       mostrarIndicadoresNotas();
     }
+
 
     // ================================
     // === Etiquetas ===
@@ -844,7 +850,15 @@
     listaTerritorios.forEach(datosTerritorio => {
       const territorioData = crearTerritorio(datosTerritorio);
       const grupo = territorioData.grupo;
+
+      // Apagar selección inicial: que no aparezca ningún polígono gris al cargar
+      grupo.eachLayer(pol => {
+        pol._selected = false;
+        pol.setStyle(pol._originalStyle); // nada de gris al cargar
+      });
+
       window.todosLosTerritorios.push(grupo);
+
 
       const polFijo = datosTerritorio.poligonos[1] || datosTerritorio.poligonos[0];
       const centro = L.polygon(polFijo.coords).getBounds().getCenter();
