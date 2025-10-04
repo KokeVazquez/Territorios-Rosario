@@ -405,6 +405,7 @@
   <div class="menu-derecha">
     <button id="btnAreaGrande">Área Grande</button>
     <button id="btnMostrarTodasNotas">Notas</button>
+    <button id="btnTerritoriosTerminados">Territorios terminados</button>
     <select id="filtroMes" onchange="filtrarPorMes()">
       <option value="">-- Filtrar por mes --</option>
       <option value="01">Enero</option>
@@ -429,11 +430,10 @@
 
   <!--BOTON PARA CREAR POLIGONOS-->
 
-  <!--<button onclick="exportarPoligonos()" style="position: absolute; top: 100px; right: 20px; z-index: 1000;">
+  <!-- <button onclick="exportarPoligonos()" style="position: absolute; top: 100px; right: 20px; z-index: 1000;">
     📤 Exportar
   </button>
 -->
-
 
 
 
@@ -452,6 +452,11 @@
 
 
   <script>
+
+
+
+
+
     // ================================
     // === Inicialización del mapa ===
     // ================================
@@ -461,22 +466,31 @@
       doubleClickZoom: false
     });
     var boundsIniciales = L.latLngBounds([[28.600, -106.075], [28.618, -106.070]]);
-    var overlayGris;
-
     map.fitBounds(boundsIniciales, { padding: [5, 5] });
+
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap",
       maxZoom: 22
     }).addTo(map);
+
+
+
+
+
 
     // ================================
     // === Variables globales ===
     // ================================
     let territorioActivo = null;
     window.todosLosTerritorios = [];
-    var etiquetasActivas = [];
-    window.marcadoresIniciales = [];
+    let etiquetasActivas = [];
     window.indicadoresNotas = [];
+    var overlayGris; // Por ahora no funcional, se deja comentado o pendiente
+
+
+
+
+
 
     // ================================
     // === Notas / Capitanes ===
@@ -499,6 +513,315 @@
       alert(nota ? "Capitán/nota: " + nota : "No hay información registrada.");
     }
 
+
+
+
+
+    // ================================
+    // === Botón Mostrar Todas Notas (Toggle) ===
+    // ================================
+    let notasMostradas = false;
+
+    document.getElementById("btnMostrarTodasNotas").addEventListener("click", function () {
+      if (!notasMostradas) {
+        // Recorrer todos los territorios
+        window.todosLosTerritorios.forEach(territorio => {
+          const notasTerritorio = JSON.parse(localStorage.getItem(territorio._id + "_notas") || "{}");
+          // Recorrer todos los polígonos del territorio
+          territorio.eachLayer(function (pol) {
+            if (notasTerritorio[pol._id] && notasTerritorio[pol._id].length > 0) {
+              // Obtener centroide del polígono
+              const latlngs = pol.getLatLngs()[0];
+              const coords = latlngs.map(ll => [ll.lng, ll.lat]);
+              coords.push([coords[0][0], coords[0][1]]); // cerrar el polígono
+              const centroide = turf.centroid(turf.polygon([coords]));
+              const cLat = centroide.geometry.coordinates[1];
+              const cLng = centroide.geometry.coordinates[0];
+              // Crear marcador de nota
+              const marker = L.marker([cLat, cLng], {
+                interactive: false,
+                icon: L.divIcon({
+                  className: "indicador-nota",
+                  html: "📒",
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10]
+                })
+              }).addTo(map);
+              // Guardarlo para poder eliminarlo después
+              window.indicadoresNotas.push(marker);
+            }
+          });
+        });
+        notasMostradas = true;
+      } else {
+        // Quitar todos los íconos de notas
+        window.indicadoresNotas.forEach(m => map.removeLayer(m));
+        window.indicadoresNotas = [];
+        notasMostradas = false;
+      }
+    });
+
+
+
+
+
+    // ================================
+    // === Notas / Capitanes / Fecha ===
+    // ================================
+    function registrarCapitan(pol) {
+      const territorioId = pol._territorioId || "territorio";
+      // Obtener datos existentes
+      let registros = JSON.parse(localStorage.getItem(territorioId + "_capitanes") || "{}");
+
+      // Pedir nombre del capitán
+      let capitan = prompt("Nombre del capitán:");
+      if (!capitan) return;
+
+      // Pedir fecha (YYYY-MM-DD)
+      let fecha = prompt("Fecha de trabajo (YYYY-MM-DD):");
+      if (!fecha) return;
+
+      if (!registros[pol._id]) registros[pol._id] = [];
+      registros[pol._id].push(`Capitán: ${capitan} | Fecha: ${fecha}`);
+
+      localStorage.setItem(territorioId + "_capitanes", JSON.stringify(registros));
+
+      // Pintar de gris
+      pol._selected = true;
+      pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
+
+      // Mostrar icono de palomita
+      const latlngs = pol.getLatLngs()[0];
+      const coords = latlngs.map(ll => [ll.lng, ll.lat]);
+      coords.push([coords[0][0], coords[0][1]]);
+      const centroide = turf.centroid(turf.polygon([coords]));
+      const cLat = centroide.geometry.coordinates[1];
+      const cLng = centroide.geometry.coordinates[0];
+
+      const marker = L.marker([cLat, cLng], {
+        interactive: false,
+        icon: L.divIcon({
+          className: "indicador-nota",
+          html: "✅",
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        })
+      }).addTo(map);
+
+      window.indicadoresNotas.push(marker);
+    }
+    // Mostrar todos los iconos de palomita según mes
+    function filtrarPorMes() {
+      const mes = document.getElementById('filtroMes').value;
+      // Limpiar iconos anteriores
+      window.indicadoresNotas.forEach(m => map.removeLayer(m));
+      window.indicadoresNotas = [];
+      window.todosLosTerritorios.forEach(territorio => {
+        const registros = JSON.parse(localStorage.getItem(territorio._id + "_capitanes") || "{}");
+        territorio.eachLayer(pol => {
+          let trabajadoEsteMes = false;
+          (registros[pol._id] || []).forEach(reg => {
+            const fecha = reg.split('| Fecha:')[1]?.trim();
+            if (fecha && fecha.slice(5, 7) === mes) trabajadoEsteMes = true;
+          });
+          if (trabajadoEsteMes) {
+            pol._selected = true;
+            pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
+            // Crear icono de palomita
+            const latlngs = pol.getLatLngs()[0];
+            const coords = latlngs.map(ll => [ll.lng, ll.lat]);
+            coords.push([coords[0][0], coords[0][1]]);
+            const centroide = turf.centroid(turf.polygon([coords]));
+            const cLat = centroide.geometry.coordinates[1];
+            const cLng = centroide.geometry.coordinates[0];
+            const marker = L.marker([cLat, cLng], {
+              interactive: false,
+              icon: L.divIcon({
+                className: "indicador-nota",
+                html: "✅",
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+              })
+            }).addTo(map);
+            window.indicadoresNotas.push(marker);
+          } else {
+            pol._selected = false;
+            pol.setStyle(pol._originalStyle);
+          }
+        });
+      });
+    }
+
+
+
+
+
+
+    // ================================
+    // === Botón Territorios Terminados ===
+    // ================================
+    document.getElementById("btnTerritoriosTerminados").addEventListener("click", function () {
+      const mes = document.getElementById('filtroMes').value;
+      if (!mes) {
+        alert("Selecciona primero un mes para mostrar los territorios terminados.");
+        return;
+      }
+
+      let mesNombre = new Date(2025, parseInt(mes) - 1).toLocaleString('es-MX', { month: 'long' });
+
+      // Función para generar el HTML de los registros
+      function generarHtml() {
+        let html = `<h2>Territorios terminados - ${mesNombre}</h2><hr>`;
+        let hayRegistros = false;
+
+        window.todosLosTerritorios.forEach((territorio, tIndex) => {
+          let territorioHtml = "";
+          territorio.eachLayer(pol => {
+            if (!pol._selected) return;
+
+            const registros = JSON.parse(localStorage.getItem(territorio._id + "_capitanes") || "{}");
+            (registros[pol._id] || []).forEach(reg => {
+              const partes = reg.split('| Fecha:');
+              const capitan = partes[0].replace("Capitán:", "").trim();
+              const fecha = partes[1]?.trim();
+              if (!fecha) return;
+
+              let mesRegistro = '';
+              if (fecha.includes('-')) mesRegistro = fecha.split('-')[1];
+              else if (fecha.includes('/')) mesRegistro = fecha.split('/')[1];
+              else if (fecha.length >= 5) mesRegistro = fecha.slice(3, 5);
+
+              if (mesRegistro === mes.padStart(2, '0')) {
+                if (!territorioHtml) territorioHtml += `<h3>Territorio ${tIndex + 1}</h3>`;
+                territorioHtml += `
+              <div class="registroItem" style="position:relative; overflow:hidden; margin-bottom:5px;">
+                <span class="textoRegistro">- Cuadra ${pol._id} | Capitán: ${capitan} | Fecha: ${fecha}</span>
+              </div>`;
+              }
+            });
+          });
+          if (territorioHtml) {
+            html += territorioHtml;
+            hayRegistros = true;
+          }
+        });
+
+        if (!hayRegistros) html += "<p>No se encontraron registros para este mes.</p>";
+        html += `<button id="borrarRegistros" style="margin-top:20px; padding:10px; background:red; color:white; border:none; border-radius:5px; font-size:16px;">🗑️ Borrar registros del mes</button>`;
+        return html;
+      }
+
+      // Crear popup tipo modal
+      const modal = document.createElement("div");
+      modal.style.position = "fixed";
+      modal.style.top = 0;
+      modal.style.left = 0;
+      modal.style.width = "100%";
+      modal.style.height = "100%";
+      modal.style.backgroundColor = "rgba(0,0,0,0.7)";
+      modal.style.zIndex = 9999;
+      modal.style.overflowY = "auto";
+
+      modal.innerHTML = `
+<div id="contenidoModal" style="background:#fff; padding:20px; margin:50px auto; width:80%; max-width:800px; border-radius:10px; position:relative; transition: all 0.3s ease;">
+    <button id="cerrarModal" style="position:absolute; top:10px; right:10px; font-size:20px;">✖</button>
+    ${generarHtml()}
+</div>
+`;
+      document.body.appendChild(modal);
+
+      const contenidoModal = document.getElementById("contenidoModal");
+
+      // Cerrar popup
+      document.getElementById("cerrarModal").addEventListener("click", () => {
+        document.body.removeChild(modal);
+      });
+
+      // Función para animar y borrar registros
+      function borrarRegistrosDelMes() {
+        const btnBasura = document.getElementById("borrarRegistros");
+
+        // Animación de vibración del botón
+        btnBasura.style.transition = "all 0.1s ease";
+        btnBasura.style.transform = "translateX(5px)";
+        setTimeout(() => btnBasura.style.transform = "translateX(-5px)", 50);
+        setTimeout(() => btnBasura.style.transform = "translateX(0px)", 100);
+
+        // Borrar registros en localStorage
+        window.todosLosTerritorios.forEach(territorio => {
+          const registros = JSON.parse(localStorage.getItem(territorio._id + "_capitanes") || "{}");
+          Object.keys(registros).forEach(polId => {
+            registros[polId] = registros[polId].filter(reg => {
+              const fecha = reg.split('| Fecha:')[1]?.trim() || '';
+              let mesRegistro = '';
+              if (fecha.includes('-')) mesRegistro = fecha.split('-')[1];
+              else if (fecha.includes('/')) mesRegistro = fecha.split('/')[1];
+              else if (fecha.length >= 5) mesRegistro = fecha.slice(3, 5);
+              return mesRegistro !== mes.padStart(2, '0');
+            });
+          });
+          localStorage.setItem(territorio._id + "_capitanes", JSON.stringify(registros));
+        });
+
+        // Resetear estilos de los polígonos
+        window.todosLosTerritorios.forEach(territorio => {
+          territorio.eachLayer(pol => {
+            if (pol._selected) {
+              pol._selected = false;
+              pol.setStyle(pol._originalStyle);
+            }
+          });
+        });
+
+        filtrarPorMes(); // refrescar el mapa
+
+        // Animación de franja blanca cubriendo cada registro
+        const registrosItems = contenidoModal.querySelectorAll(".registroItem");
+        registrosItems.forEach(item => {
+          const overlay = document.createElement("div");
+          overlay.style.position = "absolute";
+          overlay.style.top = 0;
+          overlay.style.left = "-100%";
+          overlay.style.width = "100%";
+          overlay.style.height = "100%";
+          overlay.style.backgroundColor = "white";
+          overlay.style.transition = "all 0.5s ease";
+          item.appendChild(overlay);
+          setTimeout(() => {
+            overlay.style.left = "0%";
+          }, 10);
+        });
+
+        // Quitar registros del modal después de la animación
+        setTimeout(() => {
+          contenidoModal.querySelectorAll(".registroItem").forEach(item => item.remove());
+        }, 600);
+      }
+
+      // Asignar evento al botón de borrar
+      document.getElementById("borrarRegistros").addEventListener("click", borrarRegistrosDelMes);
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // ================================
     // === Menú contextual ===
     // ================================
@@ -506,40 +829,39 @@
       const menu = document.getElementById("menuContextual");
       if (menu) menu.style.display = "none";
     }
-
-    function mostrarMenu(e, pol, notasPoligonos, territorioId) {
+    function mostrarMenu(e, pol) {
       ocultarMenu();
       const menu = document.getElementById("menuContextual");
       if (!menu) return;
-
       var x = e.originalEvent.clientX || (e.originalEvent.touches && e.originalEvent.touches[0].clientX);
       var y = e.originalEvent.clientY || (e.originalEvent.touches && e.originalEvent.touches[0].clientY);
-
       menu.style.left = x + "px";
       menu.style.top = y + "px";
       menu.style.display = "block";
-
       menu.innerHTML = `
       <button onclick="window.open('${pol._link}', '_blank'); ocultarMenu();">📍 Ubicación</button>
-      <button onclick="anadirNotaPopup('${pol._id}', '${territorioId}');">➕ Añadir nota</button>
-      <button onclick="verNotas('${pol._id}', '${territorioId}');">📒 Notas</button>
-      <button onclick="mostrarCapitanes('${territorioId}');">🧭 Capitanes</button>
+      <button onclick="anadirNota(pol); ocultarMenu();">➕ Añadir nota</button>
+      <button onclick="mostrarNota(pol); ocultarMenu();">📒 Notas</button>
     `;
     }
-
     map.on("click", ocultarMenu);
+
+
+
+
+
 
     // ================================
     // === Loader ===
     // ================================
     function mostrarLoader() {
-      document.getElementById("loader").style.display = "flex";
+      const loader = document.getElementById("loader");
+      if (loader) loader.style.display = "flex";
     }
-
     function ocultarLoader() {
-      document.getElementById("loader").style.display = "none";
+      const loader = document.getElementById("loader");
+      if (loader) loader.style.display = "none";
     }
-
     function flyWithLoader(bounds, callback) {
       mostrarLoader();
       map.flyToBounds(bounds, { padding: [20, 20] });
@@ -549,12 +871,16 @@
       });
     }
 
+
+
+
+
+
     // ================================
     // === Enfocar un territorio ===
     // ================================
     function enfocarTerritorio(grupo) {
       territorioActivo = grupo;
-
       // Desactivar interacción de todos los territorios
       window.todosLosTerritorios.forEach(t => {
         t.eachLayer(pol => {
@@ -563,22 +889,24 @@
           pol.setStyle(pol._originalStyle);
         });
       });
-
       // Activar interacción solo en el territorio activo
       territorioActivo.eachLayer(pol => {
         pol._territorioId = grupo._id || "territorio";
+        // Restaurar estilo según estado guardado
         pol.setStyle(pol._selected ? { color: "gray", fillColor: "gray", fillOpacity: 0.9 } : pol._originalStyle);
-
+        // Registrar eventos
         pol.off('click');
         pol.off('contextmenu');
-
         pol.on('click', function () {
           pol._selected = !pol._selected;
           pol.setStyle(pol._selected ? { color: "gray", fillColor: "gray", fillOpacity: 0.9 } : pol._originalStyle);
 
-          const estadoGuardado = JSON.parse(localStorage.getItem(pol._territorioId + "_estado") || "{}");
-          estadoGuardado[pol._id] = pol._selected;
-          localStorage.setItem(pol._territorioId + "_estado", JSON.stringify(estadoGuardado));
+
+          //-----------------------------ESTO ES LO QUE CAUSABA QUE LOS POLIGONOS SE QUEDARAN SIEMPRE EN GRIS----------------------------------//
+          // // const estadoGuardado = JSON.parse(localStorage.getItem(pol._territorioId + "_estado") || "{}");
+          //estadoGuardado[pol._id] = pol._selected;
+          //localStorage.setItem(pol._territorioId + "_estado", JSON.stringify(estadoGuardado));
+          //-----------------------------ESTO ES LO QUE CAUSABA QUE LOS POLIGONOS SE QUEDARAN SIEMPRE EN GRIS----------------------------------//
 
           if (pol._selected) abrirPopupTrabajado(pol._id, {}, pol._territorioId);
         });
@@ -588,29 +916,31 @@
         });
       });
 
-      // ========================
-      // === OVERLAY GRIS SOLO SI HAY MES SELECCIONADO ===
-      // ========================
-      if (mesActivo && overlayGris) {
-        map.removeLayer(overlayGris);
-        overlayGris = null;
-      }
+      // Overlay gris sobre todo el mapa excepto el activo
+      if (overlayGris) map.removeLayer(overlayGris);
+      var mundo = [[90, -180], [90, 180], [-90, 180], [-90, -180], [90, -180]];
+      var huecos = [];
+      territorioActivo.eachLayer(pol => {
+        if (pol.getLatLngs) huecos.push(pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
+      });
+      overlayGris = L.polygon([mundo, ...huecos], {
+        color: "#000",
+        fillColor: "#000",
+        fillOpacity: 0.6,
+        stroke: false,
+        interactive: false
+      }).addTo(map);
 
-      if (mesActivo && polSeleccionados && polSeleccionados.length) {
-        const mundo = [[90, -180], [90, 180], [-90, 180], [-90, -180], [90, -180]];
-        const huecos = polSeleccionados.map(pol => pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
-        overlayGris = L.polygon([mundo, ...huecos], {
-          color: "#000",
-          fillColor: "#000",
-          fillOpacity: 0.6,
-          stroke: false,
-          interactive: false
-        }).addTo(map);
-      }
-
+      // Mostrar etiquetas
       mostrarEtiquetas();
+
+      // Mostrar indicadores de notas al final
       mostrarIndicadoresNotas();
     }
+
+
+
+
 
 
     // ================================
@@ -637,6 +967,10 @@
       });
     }
 
+
+
+
+
     // ================================
     // === Cambiar territorio desde select ===
     // ================================
@@ -648,7 +982,6 @@
       ocultarMenu();
       etiquetasActivas.forEach(m => map.removeLayer(m));
       etiquetasActivas = [];
-      if (overlayGris) map.removeLayer(overlayGris);
 
       if (valor === "areaGrande") {
         selector.value = "";
@@ -669,173 +1002,38 @@
       }
     }
 
+
+
+
+
+
     // ================================
     // === Botón Área Grande ===
     // ================================
     document.getElementById("btnAreaGrande").addEventListener("click", function () {
       map.closePopup();
-      document.getElementById("selectorTerritorios").value = "";
+      document.getElementById("selectorTerritorios").value = ""; // limpiar select
       ocultarMenu();
-      if (overlayGris) map.removeLayer(overlayGris);
-      territorioActivo = null;
+      if (overlayGris) {
+        map.removeLayer(overlayGris);
+        overlayGris = null;
+      }
       etiquetasActivas.forEach(m => map.removeLayer(m));
       etiquetasActivas = [];
+      window.todosLosTerritorios.forEach(territorio => {
+        territorio.eachLayer(pol => {
+          pol._selected = false;
+          pol.setStyle(pol._originalStyle);
+        });
+      });
+      territorioActivo = null;
       flyWithLoader(boundsIniciales);
     });
 
-    // ================================
-    // === Botón Mostrar Todas Notas (Toggle) ===
-    // ================================
-    let notasMostradas = false;
-
-    document.getElementById("btnMostrarTodasNotas").addEventListener("click", function () {
-      if (!notasMostradas) {
-        window.todosLosTerritorios.forEach(territorio => {
-          const estadoNotas = JSON.parse(localStorage.getItem(territorio._id + "_notas") || "{}");
-          territorio.eachLayer(function (pol) {
-            if (estadoNotas[pol._id] && estadoNotas[pol._id].length > 0) {
-              const latlngs = pol.getLatLngs()[0];
-              const coords = latlngs.map(ll => [ll.lng, ll.lat]);
-              coords.push([coords[0][0], coords[0][1]]);
-              const centroide = turf.centroid(turf.polygon([coords]));
-              const cLat = centroide.geometry.coordinates[1];
-              const cLng = centroide.geometry.coordinates[0];
-
-              const marker = L.marker([cLat, cLng], {
-                interactive: false,
-                icon: L.divIcon({
-                  className: "indicador-nota",
-                  html: "📒",
-                  iconSize: [20, 20],
-                  iconAnchor: [10, 10]
-                })
-              }).addTo(map);
-
-              window.indicadoresNotas.push(marker);
-            }
-          });
-        });
-
-        notasMostradas = true;
-      } else {
-        window.indicadoresNotas.forEach(m => map.removeLayer(m));
-        window.indicadoresNotas = [];
-        notasMostradas = false;
-      }
-    });
-
-    // ================================
-    // === Filtro por mes ===
-    // ================================
-    function filtrarPorMes() {
-      const mes = document.getElementById('filtroMes').value;
-
-      // quitar indicadores anteriores
-      window.indicadoresNotas.forEach(m => map.removeLayer(m));
-      window.indicadoresNotas = [];
-
-      // quitar overlay gris anterior
-      if (overlayGris) map.removeLayer(overlayGris);
-      overlayGris = null;
-
-      if (!mes) return; // si no hay mes seleccionado, no pintar nada
-
-      const polSeleccionados = [];
-
-      window.todosLosTerritorios.forEach(territorio => {
-        const capitanes = JSON.parse(localStorage.getItem(territorio._id + "_capitanes") || "{}");
-
-        territorio.eachLayer(pol => {
-          pol._selected = false;               // No marcado inicialmente
-          pol.setStyle(pol._originalStyle);    // Restaurar estilo original
-          const registros = capitanes[pol._id] || [];
-          let coincideMes = false;
-
-          registros.forEach(nota => {
-            const fecha = nota.split('| Fecha:')[1]?.trim();
-            if (fecha && fecha.slice(5, 7) === mes) {
-              coincideMes = true;
-
-              // ================================
-              // === PINTAR DE GRIS EL POLÍGONO ===
-              // ================================
-              pol._selected = true;
-              pol.setStyle({ color: "gray", fillColor: "gray", fillOpacity: 0.9 });
-
-              // crear indicador de nota
-              const latlngs = pol.getLatLngs()[0];
-              const coords = latlngs.map(ll => [ll.lng, ll.lat]);
-              coords.push([coords[0][0], coords[0][1]]);
-              const centroide = turf.centroid(turf.polygon([coords]));
-              const cLat = centroide.geometry.coordinates[1];
-              const cLng = centroide.geometry.coordinates[0];
-
-              const marker = L.marker([cLat, cLng], {
-                interactive: false,
-                icon: L.divIcon({
-                  className: "indicador-nota",
-                  html: "📒",
-                  iconSize: [20, 20],
-                  iconAnchor: [10, 10]
-                })
-              }).addTo(map);
-
-              window.indicadoresNotas.push(marker);
-            }
-          });
-
-          // si coincide con el mes, agregar a la lista de polígonos seleccionados
-          if (coincideMes) polSeleccionados.push(pol);
-
-          // ================================
-          // === DESPINTAR SI NO COINCIDE ===
-          // ================================
-          if (!coincideMes) {
-            pol._selected = false;
-            pol.setStyle(pol._originalStyle);
-          }
-        });
-      });
-
-      // crear overlay gris solo sobre los polígonos seleccionados
-      if (polSeleccionados.length) {
-        const mundo = [[90, -180], [90, 180], [-90, 180], [-90, -180], [90, -180]];
-        const huecos = polSeleccionados.map(pol => pol.getLatLngs()[0].map(ll => [ll.lat, ll.lng]));
-
-        overlayGris = L.polygon([mundo, ...huecos], {
-          color: "#000",
-          fillColor: "#000",
-          fillOpacity: 0.6,
-          stroke: false,
-          interactive: false
-        }).addTo(map);
-      }
-    }
 
 
-    // ================================
-    // === ICONOS DE NOTA (ya estaba) ===
-    // ================================
-    if (coincideMes) {
-      const latlngs = pol.getLatLngs()[0];
-      const coords = latlngs.map(ll => [ll.lng, ll.lat]);
-      coords.push([coords[0][0], coords[0][1]]);
-      const centroide = turf.centroid(turf.polygon([coords]));
-      const cLat = centroide.geometry.coordinates[1];
-      const cLng = centroide.geometry.coordinates[0];
 
-      const marker = L.marker([cLat, cLng], {
-        interactive: false,
-        icon: L.divIcon({
-          className: "indicador-nota",
-          html: "📒",
-          iconSize: [20, 20],
-          iconAnchor: [10, 10]
-        })
-      }).addTo(map);
 
-      window.indicadoresNotas.push(marker);
-    }
 
 
     // ================================
@@ -850,15 +1048,7 @@
     listaTerritorios.forEach(datosTerritorio => {
       const territorioData = crearTerritorio(datosTerritorio);
       const grupo = territorioData.grupo;
-
-      // Apagar selección inicial: que no aparezca ningún polígono gris al cargar
-      grupo.eachLayer(pol => {
-        pol._selected = false;
-        pol.setStyle(pol._originalStyle); // nada de gris al cargar
-      });
-
       window.todosLosTerritorios.push(grupo);
-
 
       const polFijo = datosTerritorio.poligonos[1] || datosTerritorio.poligonos[0];
       const centro = L.polygon(polFijo.coords).getBounds().getCenter();
@@ -873,8 +1063,8 @@
 
       grupo._marcadorTerritorio = marcador;
     });
-
   </script>
+
 
 
 
